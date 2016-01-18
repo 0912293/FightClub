@@ -26,7 +26,7 @@ def main():
 
         # We draw everything from scratch on each frame.
         # So first fill everything with the background color
-        main_surface.fill((0, 200, 255))
+        main_surface.fill((0, 200, 255)) # fills background with blue
 
 
 
