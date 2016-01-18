@@ -30,7 +30,7 @@ def main():
 
 
 
-        my_font = pygame.font.SysFont("Courier", 16)    #creates font with font courier size 16
+        my_font = pygame.font.SysFont("Arial", 16)    #creates font with font courier size 16
         the_text = my_font.render("test: {0}".format(test), True, (0,0,0))   # Text, AA , color
         screen.blit(the_text, (10, 10))     # draws text at 10,10
         test += 1       # increase test value
