@@ -1,5 +1,6 @@
 import pygame
 
+
 def main():
     """ Set up the game and run the main game loop """
     pygame.init()      # Prepare the pygame module for use
@@ -23,9 +24,22 @@ def main():
         # So first fill everything with the background color
         main_surface.fill((0, 200, 255))
 
+        test = 0
+        while test < 10000:
+            test += 1
+
+
+        # Instantiate 16 point Courier font to draw text.
+        my_font = pygame.font.SysFont("Courier", 16)
+        the_text = my_font.render("test: {0}".format(test), True, (0,0,0))   # Text, AA , color
+        main_surface.blit(the_text, (10, 10))
+
 
         # Overpaint a smaller rectangle on the main surface
         main_surface.fill(some_color, small_rect)
+
+        my_clock = pygame.time.Clock()
+        my_clock.tick(60)
 
         # Now the surface is ready, tell pygame to display it!
         pygame.display.flip()
