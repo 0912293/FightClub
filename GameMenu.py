@@ -3,7 +3,7 @@ import pygame
 pygame.init()
 
 class GameMenu():
-    def __init__(self, screen, bg_color=(58,110,165)):
+    def __init__(self, screen, bg_color=(0,0,0)):
 
         self.screen = screen
         self.bg_color = bg_color
@@ -11,6 +11,11 @@ class GameMenu():
 
     def run(self):
         mainloop = True
+
+        small_rect = (220, 125, 200, 75)    # (x, y, size x, size y)
+        some_color = ( 255, 255, 255)            # A color is a mix of (Red, Green, Blue)
+
+
         while mainloop:
             # Limit frame speed to 50 FPS
             self.clock.tick(50)
@@ -21,6 +26,9 @@ class GameMenu():
 
             # Redraw the background
             self.screen.fill(self.bg_color)
+
+            screen.fill(some_color, small_rect)
+            print(pygame.mouse.get_pos())
             pygame.display.flip()
 
 if __name__ == "__main__":
