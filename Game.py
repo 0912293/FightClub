@@ -12,7 +12,7 @@ def main():
 
     # Set up some data to describe a small rectangle and its color
     small_rect = (125, 125, 600, 600)    # (x, y, size x, size y)
-    some_color = ( 255, 255, 255)            # A color is a mix of (Red, Green, Blue)
+    some_color = (255, 255, 255)            # A color is a mix of (Red, Green, Blue)
 
     test = 0
 
