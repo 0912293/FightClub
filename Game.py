@@ -5,14 +5,15 @@ from pygame.locals import *
 def main():
     """ Set up the game and run the main loop """
     pygame.init()      # Prepare the pygame module for use
-    surface_sz = 800,900  # Desired physical surface size, in pixels.
-    screen = pygame.display.set_mode(surface_sz, pygame.FULLSCREEN)
+    screenX, screenY = pygame.display.list_modes()[0]
+    print(screenX, screenY)  # Desired physical surface size, in pixels.
+    screen = pygame.display.set_mode((800, 800), pygame.FULLSCREEN)
     # pygame.display.toggle_fullscreen()
     # Create surface of (width, height), and its window.
     main_surface = screen
 
     # Set up some data to describe a small rectangle and its color
-    small_rect = (125, 125, 600, 600)    # (x, y, size x, size y)
+    small_rect = (0, 0, 600, 600)    # (x, y, size x, size y)
     some_color = (255, 255, 255)            # A color is a mix of (Red, Green, Blue)
 
     test = 0
@@ -22,7 +23,7 @@ def main():
         ev = pygame.event.poll()    # Look for any event
         if ev.type == pygame.QUIT or pygame.key.get_pressed()[27] == 1:  # Window close button clicked?
             break                   #   ... leave game loop
-        print(pygame.display.list_modes)
+        print(pygame.display.list_modes()[0])
         # Update your game objects and data structures here...
 
         # We draw everything from scratch on each frame.
