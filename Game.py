@@ -5,10 +5,11 @@ from pygame.locals import *
 def main():
     """ Set up the game and run the main game loop """
     pygame.init()      # Prepare the pygame module for use
-    surface_sz = 860,860  # Desired physical surface size, in pixels.
-    screen = pygame.display.set_mode(surface_sz)
+    surface_sz = 800,900  # Desired physical surface size, in pixels.
+    screen = pygame.display.set_mode(surface_sz, pygame.FULLSCREEN)
+    # pygame.display.toggle_fullscreen()
     # Create surface of (width, height), and its window.
-    main_surface = pygame.display.set_mode((surface_sz))
+    main_surface = screen
 
     # Set up some data to describe a small rectangle and its color
     small_rect = (125, 125, 600, 600)    # (x, y, size x, size y)
@@ -19,19 +20,17 @@ def main():
     while True:
         pygame.display.flip()
         ev = pygame.event.poll()    # Look for any event
-        if ev.type == pygame.QUIT:  # Window close button clicked?
+        if ev.type == pygame.QUIT or pygame.key.get_pressed()[27] == 1:  # Window close button clicked?
             break                   #   ... leave game loop
-
+        print(pygame.display.list_modes)
         # Update your game objects and data structures here...
 
         # We draw everything from scratch on each frame.
         # So first fill everything with the background color
         main_surface.fill((0, 200, 255)) # fills background with blue
 
-
-
         my_font = pygame.font.SysFont("Arial", 16)    #creates font with font courier size 16
-        the_text = my_font.render("test: {0}".format(test), True, (0,0,0))   # Text, AA , color
+        the_text = my_font.render("test: {0}".format(pygame.key.get_pressed()), True, (0,0,0))   # Text, AA , color
         screen.blit(the_text, (10, 10))     # draws text at 10,10
         test += 1       # increase test value
 
