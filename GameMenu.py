@@ -3,7 +3,7 @@ import pygame
 pygame.init()
 
 class GameMenu():
-    def __init__(self, screen, bg_color=(0,0,0)):
+    def __init__(self, screen, bg_color=(58,110,165)):
 
         self.screen = screen
         self.bg_color = bg_color

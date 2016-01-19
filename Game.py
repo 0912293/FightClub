@@ -3,7 +3,7 @@ import pygame
 from pygame.locals import *
 
 def main():
-    """ Set up the game and run the main game loop """
+    """ Set up the game and run the main loop """
     pygame.init()      # Prepare the pygame module for use
     surface_sz = 800,900  # Desired physical surface size, in pixels.
     screen = pygame.display.set_mode(surface_sz, pygame.FULLSCREEN)
@@ -13,7 +13,7 @@ def main():
 
     # Set up some data to describe a small rectangle and its color
     small_rect = (125, 125, 600, 600)    # (x, y, size x, size y)
-    some_color = ( 255, 255, 255)            # A color is a mix of (Red, Green, Blue)
+    some_color = (255, 255, 255)            # A color is a mix of (Red, Green, Blue)
 
     test = 0
 
