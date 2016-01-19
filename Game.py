@@ -5,47 +5,45 @@ from pygame.locals import *
 def main():
     """ Set up the game and run the main loop """
     pygame.init()      # Prepare the pygame module for use
-    screenX, screenY = pygame.display.list_modes()[0]
-    print(screenX, screenY)  # Desired physical surface size, in pixels.
-    screen = pygame.display.set_mode((800, 800), pygame.FULLSCREEN)
+    if pygame.display.list_modes()[0] == (2880, 1800) or pygame.display.list_modes()[0] == (2560, 1600):
+    	HDPI = 2
+    	screenX, screenY = pygame.display.list_modes()[0]
+    	screenX = screenX//HDPI
+    	screenY = screenY//HDPI
+    	screen = pygame.display.set_mode((screenX, screenY))
+    else:
+    	screenX, screenY = pygame.display.list_modes()[0]
+    	screen = pygame.display.set_mode(pygame.display.list_modes()[0])
     # pygame.display.toggle_fullscreen()
     # Create surface of (width, height), and its window.
     main_surface = screen
 
     # Set up some data to describe a small rectangle and its color
-    small_rect = (0, 0, 600, 600)    # (x, y, size x, size y)
+    small_rect = (100, 100, screenX-200, screenY-200)    # (x, y, size x, size y)
     some_color = (255, 255, 255)            # A color is a mix of (Red, Green, Blue)
 
     test = 0
 
     while True:
         pygame.display.flip()
-        ev = pygame.event.poll()    # Look for any event
-        if ev.type == pygame.QUIT or pygame.key.get_pressed()[27] == 1:  # Window close button clicked?
-            break                   #   ... leave game loop
-        print(pygame.display.list_modes()[0])
-        # Update your game objects and data structures here...
+        ev = pygame.event.poll()
+        if ev.type == pygame.QUIT or pygame.key.get_pressed()[27] == 1:
+            break
+        main_surface.fill((0, 200, 255))
 
-        # We draw everything from scratch on each frame.
-        # So first fill everything with the background color
-        main_surface.fill((0, 200, 255)) # fills background with blue
-
-        my_font = pygame.font.SysFont("Arial", 16)    #creates font with font courier size 16
+        my_font = pygame.font.SysFont("Arial", 16)
         the_text = my_font.render("test: {0}".format(pygame.key.get_pressed()), True, (0,0,0))   # Text, AA , color
         screen.blit(the_text, (10, 10))     # draws text at 10,10
-        test += 1       # increase test value
-
-        # Instantiate 16 point Courier font to draw text.
-
-        # Overpaint a smaller rectangle on the main surface
+        test += 1
         main_surface.fill(some_color, small_rect)
 
         my_clock = pygame.time.Clock()
         my_clock.tick(60)
 
-        # Now the surface is ready, tell pygame to display it!
-
 
     pygame.quit()     # Once we leave the loop, close the window.
+
+def createBoard():
+	pass
 
 main()
