@@ -3,7 +3,7 @@ import pygame
 from pygame.locals import *
 
 def main():
-    """ Set up the game and run the main game loop """
+    """ Set up the game and run the main loop """
     pygame.init()      # Prepare the pygame module for use
     surface_sz = 860,860  # Desired physical surface size, in pixels.
     screen = pygame.display.set_mode(surface_sz)
