@@ -27,8 +27,16 @@ class GameMenu():
             # Redraw the background
             self.screen.fill(self.bg_color)
 
-            screen.fill(some_color, small_rect)
-            print(pygame.mouse.get_pos())
+            #----button----#
+            rect=screen.fill(some_color, small_rect)
+            (b1,b2,b3) = pygame.mouse.get_pressed()
+            mpos = pygame.mouse.get_pos()
+
+            if rect.collidepoint(mpos) & b1==1:
+                print('test test')
+            #----button end----#
+
+
             pygame.display.flip()
 
 if __name__ == "__main__":
