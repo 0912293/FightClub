@@ -30,7 +30,7 @@ class GameMenu():
 
             rect=screen.fill(some_color, small_rect)
 
-            my_font = pygame.font.SysFont("Arial", 70)    #creates font with font courier size 16
+            my_font = pygame.font.SysFont("Arial", 70)
             the_text = my_font.render("EXIT", True, (0,0,0))   # Text, AA , color
             screen.blit(the_text, (220,125))     # draws text at 10,10
 
