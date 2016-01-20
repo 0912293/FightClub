@@ -61,7 +61,6 @@ def main():
     some_color = (255, 255, 255)            # A color is a mix of (Red, Green, Blue)
     # tilelist = [drawBoard(0)]
     # print(tilelist.Id, tilelist.Type, tilelist.PositionX, tilelist.PositionY)
-    test = 0
 
     while True:
         pygame.display.flip()
