@@ -2,6 +2,11 @@ import sys
 import pygame
 from pygame.locals import *
 import time
+import os
+
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 def main():
     """ Set up the game and run the main loop """
