@@ -35,21 +35,24 @@ def main():
         start_button=screen.fill(some_color, start_rect)
         exit_button=screen.fill(some_color, exit_rect)
 
+        #----text----#
         my_font = pygame.font.SysFont("Arial", 70)
         startB_text = my_font.render('START', True, (0,0,0))
         exitB_text = my_font.render("EXIT", True, (0,0,0))   # Text, AA , color
         screen.blit(startB_text,(screenX-screenX / 2 - 115,screenY-screenY /2-80))
         screen.blit(exitB_text, (screenX-screenX / 2 - 80, screenY-screenY /2))     # draws text at 10,10
+        #----text end---#
 
-        #----button----#
+
+        #----buttons----#
         (b1,b2,b3) = pygame.mouse.get_pressed()
         mpos = pygame.mouse.get_pos()
         if exit_button.collidepoint(mpos) & b1==1:
             break                   #exits game
-        #----button end----#
+
         if start_button.collidepoint(mpos) & b1==1:
             print('start')
-
+        #----buttons end----#
 
         my_clock = pygame.time.Clock()
         my_clock.tick(60)
