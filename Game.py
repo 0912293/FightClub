@@ -60,9 +60,8 @@ def main():
     	screen = pygame.display.set_mode((screenX, screenY))
     else:
     	screenX, screenY = pygame.display.list_modes()[0]
-    	screen = pygame.display.set_mode(pygame.display.list_modes()[0])
-    # pygame.display.toggle_fullscreen()
-    # Create surface of (width, height), and its window.
+        screen = pygame.display.set_mode(pygame.display.list_modes()[0])
+
     main_surface = screen
     # Set up some data to describe a small rectangle and its color
     small_rect = (100, 100, screenX-200, screenY-200)
