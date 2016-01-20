@@ -1,11 +1,16 @@
 import sys
 import pygame
 from pygame.locals import *
+import time
 
 def main():
     """ Set up the game and run the main loop """
     pygame.init()      # Prepare the pygame module for use
-    pygame.display.set_caption('Fightclub')
+    pygame.display.set_caption('Fightclub') # Titel bovenaan de venster
+
+    pygame.mixer.music.load('beep.mp3') # muziek
+    pygame.mixer.music.play(-1, 0.0)
+
     if pygame.display.list_modes()[0] == (2880, 1800) or pygame.display.list_modes()[0] == (2560, 1600):
     	HDPI = 2
     	screenX, screenY = pygame.display.list_modes()[0]
@@ -57,6 +62,8 @@ def main():
 
         my_clock = pygame.time.Clock()
         my_clock.tick(60)
+
+    pygame.mixer.music.stop()
 
 
     pygame.quit()     # Once we leave the loop, close the window.
