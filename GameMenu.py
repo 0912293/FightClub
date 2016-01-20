@@ -13,8 +13,11 @@ def main():
     pygame.init()      # Prepare the pygame module for use
     pygame.display.set_caption('Fightclub') # Titel bovenaan de venster
 
-    pygame.mixer.music.load('beep.mp3') # muziek
-    pygame.mixer.music.play(-1, 0.0)
+    try:
+        pygame.mixer.music.load('beep.mp3') # muziek
+        pygame.mixer.music.play(-1, 0.0)
+    except:
+        pass
 
     if pygame.display.list_modes()[0] == (2880, 1800) or pygame.display.list_modes()[0] == (2560, 1600):
     	HDPI = 2
@@ -63,6 +66,7 @@ def main():
 
         if start_button.collidepoint(mpos) & b1==1:
             print('start')
+            
         #----buttons end----#
 
         my_clock = pygame.time.Clock()
