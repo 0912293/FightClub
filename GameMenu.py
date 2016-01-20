@@ -5,6 +5,7 @@ from pygame.locals import *
 def main():
     """ Set up the game and run the main loop """
     pygame.init()      # Prepare the pygame module for use
+    pygame.display.set_caption('Fightclub')
     if pygame.display.list_modes()[0] == (2880, 1800) or pygame.display.list_modes()[0] == (2560, 1600):
     	HDPI = 2
     	screenX, screenY = pygame.display.list_modes()[0]
