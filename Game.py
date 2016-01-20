@@ -1,6 +1,11 @@
 import sys
 import pygame
 from pygame.locals import *
+import os
+
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 class Tile:
     def __init__(self, id, type, first, positionX, positionY):
@@ -29,6 +34,7 @@ def drawBoard(tid, max):
         return Tile(tid, ttype, first, positionX, positionY)
 
 def createBoard(tiles, screenY, screenX, main_surface):
+    tilelist = []
     for i in range(tiles):
         for j in range(tiles):
             tile = (screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles)
@@ -39,9 +45,12 @@ def createBoard(tiles, screenY, screenX, main_surface):
                     color = (0,255,0)
                     width = 10
             else:
-                color = (255, 0, 255)
+                color = (255, 0, 0)
                 width = 0
             pygame.draw.rect(main_surface,color,tile, width)
+    center = pygame.transform.scale(pygame.image.load('BoardCenter.png'), (screenX-(screenX//tiles*2), screenY-(screenY//tiles*2)))
+    main_surface.blit(center, (screenX//tiles,screenY//tiles))
+
             # pygame.display.set_mode((screenX, screenY)).fill((255, 0, 255), tile) 
 
 # tilelist = Tile(0, True, "Regular", 0, 0)
@@ -55,12 +64,14 @@ def main():
     if pygame.display.list_modes()[0] == (2880, 1800) or pygame.display.list_modes()[0] == (2560, 1600):
     	HDPI = 2
     	screenX, screenY = pygame.display.list_modes()[0]
-    	screenX = screenX//HDPI-100
-    	screenY = screenY//HDPI-100
+    	screenX = screenX//HDPI
+    	screenY = screenY//HDPI
     	screen = pygame.display.set_mode((screenX, screenY))
     else:
     	screenX, screenY = pygame.display.list_modes()[0]
-        screen = pygame.display.set_mode(pygame.display.list_modes()[0])
+    screenX -= 100
+    screenY -= 100
+    screen = pygame.display.set_mode((screenX, screenY))
 
     main_surface = screen
     # Set up some data to describe a small rectangle and its color
