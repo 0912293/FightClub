@@ -31,9 +31,17 @@ def drawBoard(tid, max):
 def createBoard(tiles, screenY, screenX, main_surface):
     for i in range(tiles):
         for j in range(tiles):
-            tile = ((tiles//screenX)*j, (tiles//screenY)*j, screenX//tiles, screenY//tiles)
-            print("tile:", i, j, screenX//tiles*j, screenY//tiles*i)
-            pygame.draw.rect(main_surface,(255, 0, 255),(screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles), 5)
+            tile = (screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles)
+            if i == 0 or j == 0 or i == tiles-1 or j == tiles-1:
+                color = (255, 0, 255)
+                width = 10
+                if (i == 0 and j == 0) or (i == tiles-1 and j == 0) or (i == 0 and j == tiles-1) or (i == tiles-1 and j == tiles-1):
+                    color = (0,255,0)
+                    width = 10
+            else:
+                color = (255, 0, 255)
+                width = 0
+            pygame.draw.rect(main_surface,color,tile, width)
             # pygame.display.set_mode((screenX, screenY)).fill((255, 0, 255), tile) 
 
 # tilelist = Tile(0, True, "Regular", 0, 0)
@@ -47,8 +55,8 @@ def main():
     if pygame.display.list_modes()[0] == (2880, 1800) or pygame.display.list_modes()[0] == (2560, 1600):
     	HDPI = 2
     	screenX, screenY = pygame.display.list_modes()[0]
-    	screenX = screenX//HDPI
-    	screenY = screenY//HDPI
+    	screenX = screenX//HDPI-100
+    	screenY = screenY//HDPI-100
     	screen = pygame.display.set_mode((screenX, screenY))
     else:
     	screenX, screenY = pygame.display.list_modes()[0]
@@ -57,8 +65,8 @@ def main():
     # Create surface of (width, height), and its window.
     main_surface = screen
     # Set up some data to describe a small rectangle and its color
-    small_rect = (100, 100, screenX-200, screenY-200)    # (x, y, size x, size y)
-    some_color = (255, 255, 255)            # A color is a mix of (Red, Green, Blue)
+    small_rect = (100, 100, screenX-200, screenY-200)
+    some_color = (255, 255, 255)
     # tilelist = [drawBoard(0)]
     # print(tilelist.Id, tilelist.Type, tilelist.PositionX, tilelist.PositionY)
 
@@ -73,7 +81,6 @@ def main():
         my_font = pygame.font.SysFont("Arial", 16)
         the_text = my_font.render("test: {0}".format("Hello World"), True, (0,0,0))   # Text, AA , color
         screen.blit(the_text, (10, 10))     # draws text at 10,10
-        test += 1
         # main_surface.fill(some_color, small_rect)
 
         my_clock = pygame.time.Clock()
