@@ -2,12 +2,17 @@ import sys
 import pygame
 from pygame.locals import *
 import time
+import os
+
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 def main():
     """ Set up the game and run the main loop """
     pygame.init()      # Prepare the pygame module for use
     pygame.display.set_caption('Fightclub') # Titel bovenaan de venster
-
+    
     pygame.mixer.music.load('beep.mp3') # muziek
     pygame.mixer.music.play(-1, 0.0)
 
@@ -18,10 +23,9 @@ def main():
     	screenY = screenY//HDPI
     	screen = pygame.display.set_mode((screenX, screenY))
     else:
-    	screenX, screenY = pygame.display.list_modes()[0]
-    	screen = pygame.display.set_mode(pygame.display.list_modes()[0])
-    # pygame.display.toggle_fullscreen()
-    # Create surface of (width, height), and its window.
+        screenX, screenY = pygame.display.list_modes()[0]
+        screen = pygame.display.set_mode(pygame.display.list_modes()[0])
+
     main_surface = screen
     background = pygame.image.load('logo_super.png')
     exit_rect = (screenX-screenX / 2 - 250, screenY-screenY /2, 500, 75)    # (x, y, size x, size y)
