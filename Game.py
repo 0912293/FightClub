@@ -50,7 +50,7 @@ def menu(main_surface):
     mpos = pygame.mouse.get_pos()
     if start_button.collidepoint(mpos) and b1==1:
         return
-    if exit_button.collidepoint(mpos) & b1==1:
+    if exit_button.collidepoint(mpos) and b1==1:
         pygame.quit()
     if pygame.key.get_pressed()[113] == 1:
         pygame.quit()
@@ -83,6 +83,7 @@ def main():
     global screenY
     screen = pygame.display.set_mode((screenX, screenY))
     main_surface = screen
+    diceRoll = 0
     menu(main_surface)
 
     while True:
@@ -95,10 +96,15 @@ def main():
 
         #dice button
         my_font = pygame.font.SysFont("Arial", 70)
-        dice_rect = (screenX-screenX / 2 - 250, screenY-screenY /2, 500, 75)
-        dice_text = my_font.render("EXIT", True, (255,255,255))
-        dice_button=main_surface.fill((0,0,0), dice_rect)
-        diceRoll = random.randint(1,6)
+        dice_rect = (screenX//tiles, screenY//tiles, 500, 75)
+        dice_button=main_surface.fill((150,0,0), dice_rect)
+        dice_text = my_font.render("Roll dice", True, (255,255,255))
+        screen.blit(dice_text, (screenX//tiles, screenY//tiles))
+
+        (b1,b2,b3) = pygame.mouse.get_pressed()
+        mpos = pygame.mouse.get_pos()
+        if dice_button.collidepoint(mpos) and b1 == 1:
+        	diceRoll = random.randint(1,6)
 
         #dice result
         my_font = pygame.font.SysFont("Arial", 16)
