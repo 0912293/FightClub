@@ -8,18 +8,26 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
+class Tile():
+	def __init__(self, id, x, y):
+		self.Id = id
+		self.X = x
+		self.Y = y
+
 def createBoard(main_surface):
-    tilelist = []
+    tilelist = {"": ""}
+    s = 0
     for i in range(tiles):
         for j in range(tiles):
             tile = (screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles)
             if i == 0 or j == 0 or i == tiles-1 or j == tiles-1:
-                color = (0, 200, 255)
-                width = 10
                 if (i == 0 and j == 0) or (i == tiles-1 and j == 0) or (i == 0 and j == tiles-1) or (i == tiles-1 and j == tiles-1):
                     pygame.draw.rect(main_surface,(0,255,0),tile)
                 else:
                     pygame.draw.rect(main_surface,(0,200,255),tile, 10)
+                s += 1
+                tilelist[s] = Tile(s, i, j)
+                print("Tile:", tilelist[s].Id, tilelist[s].X, tilelist[s].Y)
             else:
                 pygame.draw.rect(main_surface,(0, 0, 0),tile)
     center = pygame.transform.scale(pygame.image.load('BoardCenter.png'), (screenX-(screenX//tiles*2), screenY-(screenY//tiles*2)))
@@ -55,7 +63,7 @@ def menu(main_surface):
     if pygame.key.get_pressed()[113] == 1:
         pygame.quit()
     pygame.event.wait()
-    menu(main_surface) 
+    menu(main_surface)
 
 def main():
     pygame.init()      # Prepare the pygame module for use
