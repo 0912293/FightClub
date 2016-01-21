@@ -2,6 +2,7 @@ import sys
 import pygame
 from pygame.locals import *
 import os
+import random
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
@@ -26,7 +27,7 @@ def createBoard(main_surface):
 
 def menu(main_surface):
     pygame.display.flip()
-    black = (0, 0, 0)
+    black = (150, 0, 0)
     main_surface.fill(black)
     logotexture = pygame.transform.scale(pygame.image.load('logo_super.png'), (screenX, screenY))
     main_surface.blit(logotexture, (0,0))
@@ -51,12 +52,17 @@ def menu(main_surface):
         return
     if exit_button.collidepoint(mpos) & b1==1:
         pygame.quit()
+    if pygame.key.get_pressed()[113] == 1:
+        pygame.quit()
     pygame.event.wait()
-    menu(main_surface)
+    menu(main_surface) 
 
 def main():
     pygame.init()      # Prepare the pygame module for use
     pygame.display.set_caption('Fightclub')
+    
+    # for i in range(0,200):
+    # 	print(pygame.key.name(i), i)
 
     try:
         pygame.mixer.music.load('beep.mp3') # muziek
@@ -66,20 +72,18 @@ def main():
 
     tiles = 11
     global tiles
+    screenX, screenY = pygame.display.list_modes()[0]
     if pygame.display.list_modes()[0] == (2880, 1800) or pygame.display.list_modes()[0] == (2560, 1600):
     	HDPI = 2
-    	screenX, screenY = pygame.display.list_modes()[0]
     	screenX = screenX//HDPI
     	screenY = screenY//HDPI
-    	screen = pygame.display.set_mode((screenX, screenY))
-    else:
-    	screenX, screenY = pygame.display.list_modes()[0]
     screenX -= 100
     screenY -= 100
     global screenX
     global screenY
     screen = pygame.display.set_mode((screenX, screenY))
     main_surface = screen
+    menu(main_surface)
 
     while True:
         pygame.display.flip()
@@ -89,11 +93,22 @@ def main():
         main_surface.fill((255, 255, 255))
         createBoard(main_surface)
 
+        #dice button
+        my_font = pygame.font.SysFont("Arial", 70)
+        dice_rect = (screenX-screenX / 2 - 250, screenY-screenY /2, 500, 75)
+        dice_text = my_font.render("EXIT", True, (255,255,255))
+        dice_button=main_surface.fill((0,0,0), dice_rect)
+        diceRoll = random.randint(1,6)
+
+        #dice result
         my_font = pygame.font.SysFont("Arial", 16)
-        the_text = my_font.render("test: {0}".format("Hello World"), True, (0,0,0))   # Text, AA , color
+        the_text = my_font.render("Dice: {0}".format(diceRoll), True, (0,0,0))   # Text, AA , color
         screen.blit(the_text, (10, 10))     # draws text at 10,10
         if pygame.key.get_pressed()[27] == 1:
             menu(main_surface)
+        if pygame.key.get_pressed()[113] == 1:
+            pygame.quit()
+            break 
         my_clock = pygame.time.Clock()
         my_clock.tick(60)
 
