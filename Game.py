@@ -38,71 +38,107 @@ def createList(s, i, j):
 
 	if i == 0 and j == 0:
 		tilelist[s] = Tile(s, i, j)
-		print("Topleft", s)
 		createList(s+1, i, j+1)
 	elif i == 0 and j > 0 and j < maxtile:
 		tilelist[s] = Tile(s, i, j)
-		print("Top", s)
 		createList(s+1, i, j+1)
 	elif i == 0 and j == maxtile:
 		tilelist[s] = Tile(s, i, j)
-		print("Topright", s)
 		createList(s+1, i+1, j)
 	elif i > 0 and i < maxtile and j == maxtile:
 		tilelist[s] = Tile(s, i, j)
-		print("Right", s)
 		createList(s+1, i+1, j)
 	elif i == maxtile and j == maxtile:
 		tilelist[s] = Tile(s, i, j)
-		print("Rightbottom", s)
 		createList(s+1, i, j-1)
 	elif i == maxtile and j > 0 and j < maxtile:
 		tilelist[s] = Tile(s, i, j)
-		print("Bottom", s)
 		createList(s+1, i, j-1)
 	elif i == maxtile and j == 0:
 		tilelist[s] = Tile(s, i, j)
-		print("Bottomleft", s)
 		createList(s+1, i-1, j)
 	elif i == 1 and j == 0:
 		tilelist[s] = Tile(s, i, j)
 	elif i > 0 and i < maxtile and j == 0:
 		tilelist[s] = Tile(s, i, j)
-		print("Left", s)
 		createList(s+1, i-1, j)
 
-
-def menu(screen):
+def menu():
     pygame.display.flip()
-    black = (150, 0, 0)
-    screen.fill(black)
+    black = (0, 0, 0)
+    red = (150, 0, 0)
+    screen.fill(red)
     logotexture = pygame.transform.scale(pygame.image.load('logo_super.png'), (screenX, screenY))
     screen.blit(logotexture, (0,0))
 
-    #buttons
-    exit_rect = (screenX-screenX / 2 - 250, screenY-screenY /2, 500, 75)    # (x, y, size x, size y)
-    start_rect = (screenX-screenX / 2 - 250, screenY-screenY /2-80, 500, 75)
+    #buttons (x, y, size x, size y)
+    start_rect = (0, 50, screenX, 75)
+    instruct_rect = (0, 150, screenX, 75)
+    exit_rect = (0, 250, screenX, 75) 
+
     start_button=screen.fill(black, start_rect)
+    instruct_button=screen.fill(black, instruct_rect)
     exit_button=screen.fill(black, exit_rect)
 
-    #text
+    #text Text, AA , color
     my_font = pygame.font.SysFont("Arial", 70)
     startB_text = my_font.render('START', True, (255,255,255))
-    exitB_text = my_font.render("EXIT", True, (255,255,255))   # Text, AA , color
-    screen.blit(startB_text,(screenX-screenX / 2 - 115,screenY-screenY /2-80))
-    screen.blit(exitB_text, (screenX-screenX / 2 - 80, screenY-screenY /2))     # draws text at 10,10
+    instructB_text = my_font.render('INSTRUCTIONS', True, (255,255,255))
+    exitB_text = my_font.render("EXIT", True, (255,255,255))
+    
+    #draw text
+    screen.blit(startB_text,(screenX//2-(len("START")*20), 50))
+    screen.blit(instructB_text,(screenX//2-(len("INSTRUCTIONS")*20), 150))
+    screen.blit(exitB_text, (screenX//2-(len("EXIT")*20), 250))
 
     #button actions
     (b1,b2,b3) = pygame.mouse.get_pressed()
     mpos = pygame.mouse.get_pos()
     if start_button.collidepoint(mpos) and b1==1:
         return
+    if instruct_button.collidepoint(mpos) & b1==1:
+    	instructions()
     if exit_button.collidepoint(mpos) and b1==1:
         pygame.quit()
     if pygame.key.get_pressed()[113] == 1:
         pygame.quit()
     pygame.event.wait()
-    menu(screen)
+    menu()
+
+def instructions():
+	pygame.display.flip()
+	black = (0, 0, 0)
+	red = (150, 0, 0)
+	screen.fill(red)
+	logotexture = pygame.transform.scale(pygame.image.load('logo_super.png'), (screenX, screenY))
+	screen.blit(logotexture, (0,0))
+
+	background_rect = (0, 50, screenX, screenY-200)
+	background=screen.fill(black, background_rect)
+	return_rect = (0, screenY-100, screenX, 75)
+	return_button=screen.fill(black, return_rect)
+	#text Text, AA , color
+	font = pygame.font.SysFont("Arial", 40)
+	background_text1 = font.render("1.Press the escape key to open the menu", True, (255,255,255))
+	background_text2 = font.render("2.To move your pawn press the 'Roll dice' button", True, (255,255,255))
+	font = pygame.font.SysFont("Arial", 70)
+	return_text = font.render('RETURN', True, (255,255,255))
+	#draw text
+	screen.blit(background_text1,(screenX//2-(len("1.Press the escape key to open the menu")*8), 150))
+	screen.blit(background_text2,(screenX//2-(len("2.To move your pawn press the 'Roll dice' button")*8), 250))
+	screen.blit(return_text, (screenX//2-(len("RETURN")*20), screenY-100))
+
+	#button actions
+	(b1,b2,b3) = pygame.mouse.get_pressed()
+	mpos = pygame.mouse.get_pos()
+	if return_button.collidepoint(mpos) and b1==1:
+		return
+	if pygame.key.get_pressed()[27] == 1:
+		return
+	if pygame.key.get_pressed()[113] == 1:
+		pygame.quit()
+	pygame.event.wait()
+	instructions()
 
 class Pawn():
 	def __init__(self, id, sprite, position, x, y):
@@ -147,7 +183,7 @@ def main():
     # 	print(pygame.key.name(i), i)
 
     try:
-        pygame.mixer.music.load('beep.mp3') # muziek
+        pygame.mixer.music.load('beep.mp3') # Attempts to play music
         pygame.mixer.music.play(-1, 0.0)
     except:
         pass
@@ -173,7 +209,7 @@ def main():
     global screen
     diceRoll = 0
     pawnCreate()
-    menu(screen)
+    menu()
 
     while True:
         pygame.display.flip()
@@ -210,8 +246,9 @@ def main():
         my_font = pygame.font.SysFont("Arial", 16)
         the_text = my_font.render("Dice: {0}".format(diceRoll), True, (0,0,0))   # Text, AA , color
         screen.blit(the_text, (10, 10))     # draws text at 10,10
+
         if pygame.key.get_pressed()[27] == 1:
-            menu(screen)
+            menu()
         if pygame.key.get_pressed()[113] == 1:
             pygame.quit()
             break 
@@ -219,6 +256,6 @@ def main():
         my_clock.tick(60)
 
     pygame.mixer.music.stop()
-    pygame.quit()     # Once we leave the loop, close the window.
+    pygame.quit()     #Closes the windows and stops the music
 
 main()
