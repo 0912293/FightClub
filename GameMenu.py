@@ -8,6 +8,16 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
+def manual(main_surface,instructions_0,instructions_1):
+    pygame.display.flip()
+    main_surface.fill((0, 0, 0))
+    main_surface.blit(instructions_0,(80, 80))
+    main_surface.blit(instructions_1,(80, 120))
+    if pygame.key.get_pressed()[27] == 1:
+        return
+    pygame.event.wait()
+    return manual(main_surface,instructions_0,instructions_1)
+
 def main():
     """ Set up the game and run the main loop """
     pygame.init()      # Prepare the pygame module for use
@@ -33,7 +43,8 @@ def main():
     main_surface = screen
     background = pygame.image.load('logo_super.png')
     exit_rect = (screenX-screenX / 2 - 250, screenY-screenY /2, 500, 75)    # (x, y, size x, size y)
-    start_rect = (screenX-screenX / 2 - 250, screenY-screenY /2-80, 500, 75)
+    start_rect = (screenX-screenX / 2 - 250, screenY-screenY /2-160, 500, 75)
+    instruct_rect = (screenX-screenX / 2 - 250, screenY-screenY /2-80, 500, 75)
     some_color = ( 0, 0, 0)            # A color is a mix of (Red, Green, Blue)
 
 
@@ -48,14 +59,22 @@ def main():
         main_surface.blit(background,(screenX-screenX/2 - 750, -200))
         start_button=screen.fill(some_color, start_rect)
         exit_button=screen.fill(some_color, exit_rect)
+        instruct_button=screen.fill(some_color, instruct_rect)
 
         #----text----#
-        my_font = pygame.font.SysFont("Arial", 70)
+        my_font = pygame.font.SysFont("Arial", 60)
+        txt_font = pygame.font.SysFont("Arial", 30)
         startB_text = my_font.render('START', True, (255,255,255))
+        instructB_text = my_font.render('INSTRUCTIONS', True, (255,255,255))
         exitB_text = my_font.render("EXIT", True, (255,255,255))   # Text, AA , color
-        screen.blit(startB_text,(screenX-screenX / 2 - 115,screenY-screenY /2-80))
+        screen.blit(startB_text,(screenX-screenX / 2 - 115,screenY-screenY /2-160))
+        screen.blit(instructB_text,(screenX-screenX / 2 -225,screenY-screenY /2-80))
         screen.blit(exitB_text, (screenX-screenX / 2 - 80, screenY-screenY /2))     # draws text at 10,10
+
+        instructions_0 = txt_font.render("1.Press the escape key to open the menu", True, (255,255,255))
+        instructions_1 = txt_font.render("2.To move your pawn press the die button", True, (255,255,255))
         #----text end---#
+
 
 
         #----buttons----#
@@ -63,6 +82,8 @@ def main():
         mpos = pygame.mouse.get_pos()
         if exit_button.collidepoint(mpos) & b1==1:
             break                   #exits game
+        if instruct_button.collidepoint(mpos) & b1==1:
+            manual(main_surface,instructions_0,instructions_1)
 
         if start_button.collidepoint(mpos) & b1==1:
             print('start')
