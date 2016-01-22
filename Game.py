@@ -147,7 +147,7 @@ class Player():
         self.Position = position
         self.X = x
         self.Y = y
-        self.Helath = health
+        self.Health = health
         self.Stamina = stamina
         self.Name = name
 
@@ -177,13 +177,18 @@ def turn(player, font):
     screen.blit(dice_text, (screenX//tiles, screenY//tiles))
     (b1,b2,b3) = pygame.mouse.get_pressed()
     mpos = pygame.mouse.get_pos()
-    forward = 1
-    if dice_button.collidepoint(mpos) and b1 == 1:
-        if player == numberOfPlayers-1:
-            return playerMove(player, forward)
-        elif player < numberOfPlayers-1:
-            playerMove(player, forward)
-            turn(player+1, font)
+    forward = random.randint(1,6)
+    global playerN
+    global forward
+    # if dice_button.collidepoint(mpos) and b1 == 1:
+    # if pygame.key.get_pressed()[49] == 1:
+    if player == numberOfPlayers-1:
+        playerMove(player, forward)
+        playerN = 0
+    elif player < numberOfPlayers-1:
+        playerMove(player, forward)
+        playerN += 1
+        # turn(player+1, font)
     # else:
     #     turn(player+1, font)
 
@@ -203,9 +208,11 @@ def main():
     tilelist = {"": ""}
     tiles = 11
     numberOfPlayers = 3
+    playerN = 0
     global tilelist
     global tiles
     global numberOfPlayers
+    global playerN
     createList(0,0,0)
 
     screenX, screenY = pygame.display.list_modes()[0]
@@ -219,7 +226,7 @@ def main():
     global screenX
     global screenY
     global screen
-    diceRoll = 0
+    forward = 0
     playerCreate()
     menu()
 
@@ -231,11 +238,12 @@ def main():
         screen.fill((255, 255, 255))
         createBoard()
 
-        #dice button
-
         pygame.event.pump()
         my_font = pygame.font.SysFont("Helvetica", 70)
-        turn(0, my_font)
+        if pygame.key.get_pressed()[49] == 1:
+            turn(playerN, my_font)
+
+
         # s = 0
         # while s < numberOfPlayers:
         #     pygame.event.wait()
@@ -269,7 +277,7 @@ def main():
             screen.blit(players[s].Sprite, (players[s].X, players[s].Y))
 
         my_font = pygame.font.SysFont("Arial", 16)
-        the_text = my_font.render("Dice: {0}".format(diceRoll), True, (0,0,0))   # Text, AA , color
+        the_text = my_font.render("Dice: {0}".format(forward), True, (0,0,0))   # Text, AA , color
         screen.blit(the_text, (10, 10))     # draws text at 10,10
 
         if pygame.key.get_pressed()[27] == 1:
