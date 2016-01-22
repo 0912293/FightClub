@@ -170,27 +170,16 @@ def playerMove(s, forward):
             print("Player", s)
             break
 
-def turn(player, font):
-    dice_rect = (screenX//tiles, screenY//tiles, 500, 75)
-    dice_button=screen.fill((150,0,0), dice_rect)
-    dice_text = font.render("Roll dice", True, (255,255,255))
-    screen.blit(dice_text, (screenX//tiles, screenY//tiles))
-    (b1,b2,b3) = pygame.mouse.get_pressed()
-    mpos = pygame.mouse.get_pos()
+def turn(player):
     forward = random.randint(1,6)
     global playerN
     global forward
-    # if dice_button.collidepoint(mpos) and b1 == 1:
-    # if pygame.key.get_pressed()[49] == 1:
     if player == numberOfPlayers-1:
         playerMove(player, forward)
         playerN = 0
     elif player < numberOfPlayers-1:
         playerMove(player, forward)
         playerN += 1
-        # turn(player+1, font)
-    # else:
-    #     turn(player+1, font)
 
 def main():
     pygame.init()      # Prepare the pygame module for use
@@ -209,10 +198,12 @@ def main():
     tiles = 11
     numberOfPlayers = 3
     playerN = 0
+    forward = 0
     global tilelist
     global tiles
     global numberOfPlayers
     global playerN
+    global forward
     createList(0,0,0)
 
     screenX, screenY = pygame.display.list_modes()[0]
@@ -226,7 +217,6 @@ def main():
     global screenX
     global screenY
     global screen
-    forward = 0
     playerCreate()
     menu()
 
@@ -239,9 +229,16 @@ def main():
         createBoard()
 
         pygame.event.pump()
-        my_font = pygame.font.SysFont("Helvetica", 70)
-        if pygame.key.get_pressed()[49] == 1:
-            turn(playerN, my_font)
+        font = pygame.font.SysFont("Helvetica", 70)
+        dice_rect = (screenX//tiles, screenY//tiles, 500, 75)
+        dice_button=screen.fill((150,0,0), dice_rect)
+        dice_text = font.render("Roll dice", True, (255,255,255))
+        screen.blit(dice_text, (screenX//tiles, screenY//tiles))
+        (b1,b2,b3) = pygame.mouse.get_pressed()
+        mpos = pygame.mouse.get_pos()
+        if dice_button.collidepoint(mpos) and b1 == 1:
+            turn(playerN)
+        print(forward)
 
 
         # s = 0
