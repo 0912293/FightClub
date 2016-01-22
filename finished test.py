@@ -14,8 +14,7 @@ class Tile():
         self.X = x
         self.Y = y
 
-
-def createBoard(screen):
+def createBoard():
     # tilelist = {"": ""}
     # s = 0
     for i in range(tiles):
@@ -121,12 +120,12 @@ def instructions():
     #text Text, AA , color
     font = pygame.font.SysFont("Arial", 40)
     background_text1 = font.render("1.Press the escape key to open the menu", True, (255,255,255))
-    background_text2 = font.render("2.To move your pawn press the 'Roll dice' button", True, (255,255,255))
+    background_text2 = font.render("2.To move your player press the 'Roll dice' button", True, (255,255,255))
     font = pygame.font.SysFont("Arial", 70)
     return_text = font.render('RETURN', True, (255,255,255))
     #draw text
     screen.blit(background_text1,(screenX//2-(len("1.Press the escape key to open the menu")*8), 150))
-    screen.blit(background_text2,(screenX//2-(len("2.To move your pawn press the 'Roll dice' button")*8), 250))
+    screen.blit(background_text2,(screenX//2-(len("2.To move your player press the 'Roll dice' button")*8), 250))
     screen.blit(return_text, (screenX//2-(len("RETURN")*20), screenY-100))
 
     #button actions
@@ -141,49 +140,66 @@ def instructions():
     pygame.event.wait()
     instructions()
 
-class Pawn():
-    def __init__(self, id, sprite, position, x, y):
+class Player():
+    def __init__(self, id, sprite, position, x, y, health, stamina, name):
         self.Id = id
         self.Sprite = sprite
         self.Position = position
         self.X = x
         self.Y = y
+        self.Health = health
+        self.Stamina = stamina
+        self.Name = name
 
-def pawnCreate():
-    pawns = {"":""}
-    for s in range(0, players):
-        if s == 0:
-            pawnImg = "pawn24bit1.png"
-        elif s == 1:
-            pawnImg = "pawn24bit2.png"
-        elif s == 2:
-            pawnImg = "pawn24bit3.png"
-        else:
-            pawnImg = "pawn24bit4.png"
-        pawns[s] = Pawn(s, pygame.transform.scale(pygame.image.load(pawnImg), (screenX//tiles, screenY//tiles)), 1*s, 1*s, 1*s)
-    global pawns
+def playerCreate():
+    players = {"":""}
+    for s in range(0, numberOfPlayers):
+        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles, screenY//tiles)), 1*s, 1*s, 1*s, 100, 15, "name")
+    global players
 
-def pawnMove(s, forward):
-    if pawns[s].Position + forward > len(tilelist)-1:
-        remainder = pawns[s].Position + forward - len(tilelist)-1
-        pawns[s].Position = remainder
-    pawns[s].Position += forward
+def playerMove(s, forward):
+    if players[s].Position + forward > len(tilelist)-1:
+        remainder = players[s].Position + forward - len(tilelist)-1
+        players[s].Position = remainder
+    players[s].Position += forward
     for i in range(len(tilelist)-1):
-        if tilelist[i].Id == pawns[s].Position:
-            pawns[s].X = tilelist[i].X*(screenX//tiles)
-            pawns[s].Y = tilelist[i].Y*(screenY//tiles)
+        if tilelist[i].Id == players[s].Position:
+            players[s].X = tilelist[i].X*(screenX//tiles)
+            players[s].Y = tilelist[i].Y*(screenY//tiles)
+            pygame.display.flip()
+            print('player', s, players[s].Health)
+            print("Player", s)
+            finish(s)
             break
 
+def turn(player, font):
+    dice_rect = (screenX//tiles, screenY//tiles, 500, 75)
+    dice_button=screen.fill((150,0,0), dice_rect)
+    dice_text = font.render("Roll dice", True, (255,255,255))
+    screen.blit(dice_text, (screenX//tiles, screenY//tiles))
+    (b1,b2,b3) = pygame.mouse.get_pressed()
+    mpos = pygame.mouse.get_pos()
+    forward = 1
+    if dice_button.collidepoint(mpos) and b1 == 1:
+        if player == numberOfPlayers-1:
+            return playerMove(player, forward)
+        elif player < numberOfPlayers-1:
+            playerMove(player, forward)
+            turn(player+1, font)
+    # else:
+    #     turn(player+1, font)
 
-def finish():
+def finish(s):
     black = (0, 0, 0)
     pygame.display.flip()
     font = pygame.font.SysFont('Arial',60,True)
     text = font.render("Game finished", True, (255,255,255))
+    wint_text = font.render(('Player ',s,' won'),True, (255,255,255))
     exitB_text = font.render("EXIT", True, (255,255,255))
     exit_rect = (0, screenY//2, screenX, 75)
     exit_button=screen.fill(black, exit_rect)
     screen.blit(text,(screenX//2-(len('Game finished')*13), 150))
+    screen.blit(wint_text,(screenX//2-(len('Player   won')*13),300))
     screen.blit(exitB_text, (screenX//2-(len("EXIT")*4), screenY//2))
     (b1,b2,b3) = pygame.mouse.get_pressed()
     mpos = pygame.mouse.get_pos()
@@ -191,6 +207,7 @@ def finish():
         pygame.quit()
     pygame.event.wait()
     finish()
+
 
 def main():
     pygame.init()      # Prepare the pygame module for use
@@ -207,10 +224,10 @@ def main():
 
     tilelist = {"": ""}
     tiles = 11
-    players = 3
+    numberOfPlayers = 3
     global tilelist
     global tiles
-    global players
+    global numberOfPlayers
     createList(0,0,0)
 
     screenX, screenY = pygame.display.list_modes()[0]
@@ -225,7 +242,7 @@ def main():
     global screenY
     global screen
     diceRoll = 0
-    pawnCreate()
+    playerCreate()
     menu()
 
     while True:
@@ -234,34 +251,44 @@ def main():
         if ev.type == pygame.QUIT:
             break
         screen.fill((255, 255, 255))
-        createBoard(screen)
+        createBoard()
 
         #dice button
-        my_font = pygame.font.SysFont("Arial", 70)
-        dice_rect = (screenX//tiles, screenY//tiles, 500, 75)
-        dice_button=screen.fill((150,0,0), dice_rect)
-        dice_text = my_font.render("Roll dice", True, (255,255,255))
-        screen.blit(dice_text, (screenX//tiles, screenY//tiles))
 
-        for s in range(players):
-            pygame.event.wait()
-            (b1,b2,b3) = pygame.mouse.get_pressed()
-            mpos = pygame.mouse.get_pos()
-            if dice_button.collidepoint(mpos) and b1 == 1:
-                diceRoll = random.randint(1,6)
-                pawnMove(s, 1)
+        pygame.event.pump()
+        my_font = pygame.font.SysFont("Helvetica", 70)
+        turn(0, my_font)
+        # s = 0
+        # while s < numberOfPlayers:
+        #     pygame.event.wait()
+        #     (b1,b2,b3) = pygame.mouse.get_pressed()
+        #     mpos = pygame.mouse.get_pos()
+        #     if dice_button.collidepoint(mpos) and b1 == 1:
+        #         diceRoll = random.randint(1,6)
+        #         print("Moved player", s)
+        #         playerMove(s, 1)
+        #         s += 1
+        #         pygame.display.flip()
 
-                if diceRoll ==6:
-                    finish()
-                # if pawns[s].Position + diceRoll >= len(tilelist):
-                #   diceRoll -= (pawns[s].Position + diceRoll - len(tilelist))
-                #   pawnMove(s, diceRoll)
-                #   pawns[s].Position = 0
+        # for s in range(numberOfPlayers):
+        #     print("Hello")
+        #     pygame.event.wait()
+        #     print("Goodbye")
+        #     (b1,b2,b3) = pygame.mouse.get_pressed()
+        #     mpos = pygame.mouse.get_pos()
+        #     if dice_button.collidepoint(mpos) and b1 == 1:
+        #         diceRoll = random.randint(1,6)
+        #         print("Moved player", s)
+        #         playerMove(s, 1)
+                # if players[s].Position + diceRoll >= len(tilelist):
+                #   diceRoll -= (players[s].Position + diceRoll - len(tilelist))
+                #   playerMove(s, diceRoll)
+                #   players[s].Position = 0
                 # else:
-                #   pawnMove(s, diceRoll)
+                #   playerMove(s, diceRoll)
 
-        for s in range(players):
-            screen.blit(pawns[s].Sprite, (pawns[s].X, pawns[s].Y))
+        for s in range(numberOfPlayers):
+            screen.blit(players[s].Sprite, (players[s].X, players[s].Y))
 
         my_font = pygame.font.SysFont("Arial", 16)
         the_text = my_font.render("Dice: {0}".format(diceRoll), True, (0,0,0))   # Text, AA , color
