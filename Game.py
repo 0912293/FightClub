@@ -147,7 +147,7 @@ class Player():
         self.Position = position
         self.X = x
         self.Y = y
-        self.Helath = health
+        self.Health = health
         self.Stamina = stamina
         self.Name = name
 
