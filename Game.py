@@ -14,7 +14,7 @@ class Tile():
         self.X = x
         self.Y = y
 
-def createBoard(screen):
+def createBoard():
     # tilelist = {"": ""}
     # s = 0
     for i in range(tiles):
@@ -141,25 +141,19 @@ def instructions():
     instructions()
 
 class Pawn():
-    def __init__(self, id, sprite, position, x, y):
+    def __init__(self, id, sprite, position, x, y, health, stamina):
         self.Id = id
         self.Sprite = sprite
         self.Position = position
         self.X = x
         self.Y = y
+        self.Helath = health
+        self.Stamina = stamina
 
 def pawnCreate():
     pawns = {"":""}
     for s in range(0, players):
-        if s == 0:
-            pawnImg = "pawn24bit1.png"
-        elif s == 1:
-            pawnImg = "pawn24bit2.png"
-        elif s == 2:
-            pawnImg = "pawn24bit3.png"
-        else:
-            pawnImg = "pawn24bit4.png"
-        pawns[s] = Pawn(s, pygame.transform.scale(pygame.image.load(pawnImg), (screenX//tiles, screenY//tiles)), 1*s, 1*s, 1*s)
+        pawns[s] = Pawn(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles, screenY//tiles)), 1*s, 1*s, 1*s, 100, 15)
     global pawns
 
 def pawnMove(s, forward):
@@ -172,6 +166,8 @@ def pawnMove(s, forward):
             pawns[s].X = tilelist[i].X*(screenX//tiles)
             pawns[s].Y = tilelist[i].Y*(screenY//tiles)
             break
+
+def createPlayers():
 
 def main():
     pygame.init()      # Prepare the pygame module for use
@@ -215,7 +211,7 @@ def main():
         if ev.type == pygame.QUIT:
             break
         screen.fill((255, 255, 255))
-        createBoard(screen)
+        createBoard()
 
         #dice button
         my_font = pygame.font.SysFont("Arial", 70)
