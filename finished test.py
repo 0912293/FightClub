@@ -169,7 +169,6 @@ def playerMove(s, forward):
             pygame.display.flip()
             print('player', s, players[s].Health)
             print("Player", s)
-            finish()
             break
 
 def turn(player, font):
@@ -189,15 +188,17 @@ def turn(player, font):
     # else:
     #     turn(player+1, font)
 
-def finish():
+def finish(s):
     black = (0, 0, 0)
     pygame.display.flip()
     font = pygame.font.SysFont('Arial',60,True)
     text = font.render("Game finished", True, (255,255,255))
+    win_play = font.render("Player{0} won" .format(s), True, (255,255,255))
     exitB_text = font.render("EXIT", True, (255,255,255))
     exit_rect = (0, screenY//2, screenX, 75)
     exit_button=screen.fill(black, exit_rect)
     screen.blit(text,(screenX//2-(len('Game finished')*13), 150))
+    screen.blit(win_play,(screenX//2-(len('Game finished')*13), 280))
     screen.blit(exitB_text, (screenX//2-(len("EXIT")*4), screenY//2))
     (b1,b2,b3) = pygame.mouse.get_pressed()
     mpos = pygame.mouse.get_pos()
@@ -291,6 +292,9 @@ def main():
         my_font = pygame.font.SysFont("Arial", 16)
         the_text = my_font.render("Dice: {0}".format(diceRoll), True, (0,0,0))   # Text, AA , color
         screen.blit(the_text, (10, 10))     # draws text at 10,10
+
+        if diceRoll>5:
+            finish(s)
 
         if pygame.key.get_pressed()[27] == 1:
             menu()
