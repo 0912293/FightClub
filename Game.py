@@ -9,10 +9,12 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 class Tile():
-    def __init__(self, id, x, y):
+    def __init__(self, id, x, y, type, owner):
         self.Id = id
         self.X = x
         self.Y = y
+        self.Type = type
+        self.Owner = owner
 
 def createBoard():
     for i in range(tiles):
@@ -32,30 +34,30 @@ def createList(s, i, j):
     maxtile = tiles-1
 
     if i == 0 and j == 0:
-        tilelist[s] = Tile(s, i, j)
+        tilelist[s] = Tile(s, i, j, "corner", 0)
         createList(s+1, i, j+1)
     elif i == 0 and j > 0 and j < maxtile:
-        tilelist[s] = Tile(s, i, j)
+        tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i, j+1)
     elif i == 0 and j == maxtile:
-        tilelist[s] = Tile(s, i, j)
+        tilelist[s] = Tile(s, i, j, "corner", 1)
         createList(s+1, i+1, j)
     elif i > 0 and i < maxtile and j == maxtile:
-        tilelist[s] = Tile(s, i, j)
+        tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i+1, j)
     elif i == maxtile and j == maxtile:
-        tilelist[s] = Tile(s, i, j)
+        tilelist[s] = Tile(s, i, j, "corner", 2)
         createList(s+1, i, j-1)
     elif i == maxtile and j > 0 and j < maxtile:
-        tilelist[s] = Tile(s, i, j)
+        tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i, j-1)
     elif i == maxtile and j == 0:
-        tilelist[s] = Tile(s, i, j)
+        tilelist[s] = Tile(s, i, j, "corner", 3)
         createList(s+1, i-1, j)
     elif i == 1 and j == 0:
-        tilelist[s] = Tile(s, i, j)
+        tilelist[s] = Tile(s, i, j, "general", -1)
     elif i > 0 and i < maxtile and j == 0:
-        tilelist[s] = Tile(s, i, j)
+        tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i-1, j)
 
 def menu():
@@ -77,12 +79,12 @@ def menu():
 
     #text Text, AA , color
     my_font = pygame.font.SysFont("Arial", 70)
-    startB_text = my_font.render('START', True, (255,255,255))
+    startB_text = my_font.render('RESUME GAME', True, (255,255,255))
     instructB_text = my_font.render('INSTRUCTIONS', True, (255,255,255))
     exitB_text = my_font.render("EXIT", True, (255,255,255))
     
     #draw text
-    screen.blit(startB_text,(screenX//2-(len("START")*20), 50))
+    screen.blit(startB_text,(screenX//2-(len("RESUME GAME")*20), 50))
     screen.blit(instructB_text,(screenX//2-(len("INSTRUCTIONS")*20), 150))
     screen.blit(exitB_text, (screenX//2-(len("EXIT")*20), 250))
 
@@ -151,8 +153,6 @@ class Player():
 def playerCreate():
     players = {"":""}
     for s in range(0, numberOfPlayers):
-        pawnPosition = (tilelist[tiles*s].X, tilelist[tiles*s].Y)
-        print((tilelist[(tiles-1)*s].X, tilelist[(tiles-1)*s].Y))
         players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles, screenY//tiles)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles), tilelist[(tiles-1)*s].Y*(screenY//tiles), 100, 15, "name", playerColors, False)
     global players
 
@@ -174,16 +174,27 @@ def turn(player):
     global forward
     if player == numberOfPlayers-1:
         playerMove(player, forward)
+        checkFight(player)
         playerN = 0
     elif player < numberOfPlayers-1:
         playerMove(player, forward)
+        checkFight(player)
         playerN += 1
+
+def checkFight(player):
+    for s in range(len(players)-1):
+        if (players[player].Position == players[s].Position and players[player].Id != players[s].Id):
+            print("Fight!")
+    for s in range(len(tilelist)-1):
+        if players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner:
+            print("Cornerfight!")
 
 def fight(player):
     pygame.display.flip()
     screen.fill((150, 0, 0))
-    # card1 = pygame.transform.scale(pygame.image.load(os.path.join("img" + "sf", str(player), ".png")), (screenX, screenY))
-    # card2 = pygame.transform.scale(pygame.image.load(os.path.join("img" + "sf", str(random.randint(1,19), ".png")), (screenX, screenY))
+    card1 = pygame.transform.scale(pygame.image.load(os.path.join("img" + "sf", str(player), ".png")), (screenX, screenY))
+    card2 = pygame.transform.scale(pygame.image.load(os.path.join("img" + "sf", str(random.randint(1,19)), ".png")), (screenX, screenY))
+
 
 def main():
     pygame.init()      # Prepare the pygame module for use
@@ -204,7 +215,7 @@ def main():
     #   print(pygame.key.name(i), i)
 
     try:
-        pygame.mixer.music.load('beep.mp3') # Attempts to play music
+        pygame.mixer.music.load('music.mp3') # Attempts to play music
         pygame.mixer.music.play(-1, 0.0)
     except:
         pass
@@ -239,7 +250,7 @@ def main():
         font = pygame.font.SysFont("Helvetica", 70)
         dice_rect = (screenX//2-screenX//tiles, screenY//tiles, screenX//tiles*2, screenY//tiles)
         dice_button=screen.fill(players[playerN].Color, dice_rect)
-        dice_text = font.render(str(forward), True, (255,255,0))
+        dice_text = font.render(str(forward), True, (255,255,255))
         dice = pygame.transform.scale(pygame.image.load('die.png'), (screenX//tiles, screenY//tiles))
         screen.blit(dice_text, (screenX//2+(screenX//tiles//2), screenY//tiles))
         screen.blit(dice, (screenX//2-screenX//tiles,screenY//tiles))
