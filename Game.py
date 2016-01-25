@@ -15,8 +15,6 @@ class Tile():
         self.Y = y
 
 def createBoard():
-    # tilelist = {"": ""}
-    # s = 0
     for i in range(tiles):
         for j in range(tiles):
             tile = (screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles)
@@ -25,9 +23,6 @@ def createBoard():
                     pygame.draw.rect(screen,(0,255,0),tile)
                 else:
                     pygame.draw.rect(screen,(0,200,255),tile, 10)
-                # tilelist[s] = Tile(s, j, i)
-                # s += 1
-                # global tilelist
             else:
                 pygame.draw.rect(screen,(255, 255, 255),tile)
     center = pygame.transform.scale(pygame.image.load('logo_super.png'), (screenX-(screenX//tiles*2), screenY-(screenY//tiles*2)))
@@ -141,7 +136,7 @@ def instructions():
     instructions()
 
 class Player():
-    def __init__(self, id, sprite, position, x, y, health, stamina, name, color):
+    def __init__(self, id, sprite, position, x, y, health, stamina, name, color, removed):
         self.Id = id
         self.Sprite = sprite
         self.Position = position
@@ -151,11 +146,14 @@ class Player():
         self.Stamina = stamina
         self.Name = name
         self.Color = color[id]
+        self.Removed = removed
 
 def playerCreate():
     players = {"":""}
     for s in range(0, numberOfPlayers):
-        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles, screenY//tiles)), 1*s, 1*s, 1*s, 100, 15, "name", playerColors)
+        pawnPosition = (tilelist[tiles*s].X, tilelist[tiles*s].Y)
+        print((tilelist[(tiles-1)*s].X, tilelist[(tiles-1)*s].Y))
+        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles, screenY//tiles)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles), tilelist[(tiles-1)*s].Y*(screenY//tiles), 100, 15, "name", playerColors, False)
     global players
 
 def playerMove(s, forward):
@@ -181,9 +179,26 @@ def turn(player):
         playerMove(player, forward)
         playerN += 1
 
+def fight(player):
+    pygame.display.flip()
+    screen.fill((150, 0, 0))
+    # card1 = pygame.transform.scale(pygame.image.load(os.path.join("img" + "sf", str(player), ".png")), (screenX, screenY))
+    # card2 = pygame.transform.scale(pygame.image.load(os.path.join("img" + "sf", str(random.randint(1,19), ".png")), (screenX, screenY))
+
 def main():
     pygame.init()      # Prepare the pygame module for use
     pygame.display.set_caption('Fightclub')
+
+    screenX, screenY = pygame.display.list_modes()[0]
+    if pygame.display.list_modes()[0] == (2880, 1800) or pygame.display.list_modes()[0] == (2560, 1600):
+        HDPI = 2
+        screenX = screenX//HDPI
+        screenY = screenY//HDPI
+    screenX -= 100
+    screenY -= 100
+    screen = pygame.display.set_mode((screenX, screenY))
+    global screenX
+    global screenY
     
     # for i in range(0,200):
     #   print(pygame.key.name(i), i)
@@ -208,16 +223,6 @@ def main():
     global playerColors
     createList(0,0,0)
 
-    screenX, screenY = pygame.display.list_modes()[0]
-    if pygame.display.list_modes()[0] == (2880, 1800) or pygame.display.list_modes()[0] == (2560, 1600):
-        HDPI = 2
-        screenX = screenX//HDPI
-        screenY = screenY//HDPI
-    screenX -= 100
-    screenY -= 100
-    screen = pygame.display.set_mode((screenX, screenY))
-    global screenX
-    global screenY
     global screen
     playerCreate()
     menu()
@@ -232,10 +237,12 @@ def main():
 
         pygame.event.pump()
         font = pygame.font.SysFont("Helvetica", 70)
-        dice_rect = (screenX//tiles, screenY//tiles, 500, 75)
+        dice_rect = (screenX//2-screenX//tiles, screenY//tiles, screenX//tiles*2, screenY//tiles)
         dice_button=screen.fill(players[playerN].Color, dice_rect)
-        dice_text = font.render("Roll dice", True, (255,255,255))
-        screen.blit(dice_text, (screenX//tiles, screenY//tiles))
+        dice_text = font.render(str(forward), True, (255,255,0))
+        dice = pygame.transform.scale(pygame.image.load('die.png'), (screenX//tiles, screenY//tiles))
+        screen.blit(dice_text, (screenX//2+(screenX//tiles//2), screenY//tiles))
+        screen.blit(dice, (screenX//2-screenX//tiles,screenY//tiles))
 
         pygame.event.get()
         (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -245,10 +252,6 @@ def main():
 
         for s in range(numberOfPlayers):
             screen.blit(players[s].Sprite, (players[s].X, players[s].Y))
-
-        my_font = pygame.font.SysFont("Arial", 16)
-        the_text = my_font.render("Dice: {0}".format(forward), True, (0,0,0))   # Text, AA , color
-        screen.blit(the_text, (10, 10))     # draws text at 10,10
 
         pygame.event.get()
         if pygame.key.get_pressed()[27] == 1:
