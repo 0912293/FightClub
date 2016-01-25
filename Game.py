@@ -1,3 +1,4 @@
+
 import sys
 import pygame
 from pygame.locals import *
@@ -21,8 +22,14 @@ def createBoard():
         for j in range(tiles):
             tile = (screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles)
             if i == 0 or j == 0 or i == tiles-1 or j == tiles-1:
-                if (i == 0 and j == 0) or (i == tiles-1 and j == 0) or (i == 0 and j == tiles-1) or (i == tiles-1 and j == tiles-1):
-                    pygame.draw.rect(screen,(0,255,0),tile)
+                if i == 0 and j == 0:
+                    pygame.draw.rect(screen, players[0].Color, tile)
+                elif i == tiles-1 and j == 0:
+                    pygame.draw.rect(screen, players[1].Color, tile)
+                elif i == 0 and j == tiles-1:
+                    pygame.draw.rect(screen, players[3].Color, tile)
+                elif i == tiles-1 and j == tiles-1:
+                    pygame.draw.rect(screen, players[2].Color, tile)
                 else:
                     pygame.draw.rect(screen,(0,200,255),tile, 10)
             else:
@@ -153,7 +160,7 @@ class Player():
 def playerCreate():
     players = {"":""}
     for s in range(0, numberOfPlayers):
-        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles, screenY//tiles)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles), tilelist[(tiles-1)*s].Y*(screenY//tiles), 100, 15, "name", playerColors, False)
+        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles-10, screenY//tiles-10)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles)+5, tilelist[(tiles-1)*s].Y*(screenY//tiles)+5, 100, 15, "name", playerColors, False)
     global players
 
 def playerMove(s, forward):
@@ -163,8 +170,8 @@ def playerMove(s, forward):
     players[s].Position += forward
     for i in range(len(tilelist)-1):
         if tilelist[i].Id == players[s].Position:
-            players[s].X = tilelist[i].X*(screenX//tiles)
-            players[s].Y = tilelist[i].Y*(screenY//tiles)
+            players[s].X = tilelist[i].X*(screenX//tiles)+5
+            players[s].Y = tilelist[i].Y*(screenY//tiles)+5
             pygame.display.flip()
             break
 
@@ -184,16 +191,53 @@ def turn(player):
 def checkFight(player):
     for s in range(len(players)-1):
         if (players[player].Position == players[s].Position and players[player].Id != players[s].Id):
-            print("Fight!")
+            fight(player, s, False)
     for s in range(len(tilelist)-1):
         if players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner:
-            print("Cornerfight!")
+            fight(player, s, True)
 
-def fight(player):
+def fight(player, defender, tile):
     pygame.display.flip()
-    screen.fill((150, 0, 0))
-    card1 = pygame.transform.scale(pygame.image.load(os.path.join("img" + "sf", str(player), ".png")), (screenX, screenY))
-    card2 = pygame.transform.scale(pygame.image.load(os.path.join("img" + "sf", str(random.randint(1,19)), ".png")), (screenX, screenY))
+    screen.fill((0, 0, 0))
+    card1 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(player+1) + ".png")), (screenX, screenY))
+    card2 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(random.randint(1,18)) + ".png")), (screenX, screenY))
+
+    font = pygame.font.SysFont("Helvetica", 70)
+    fight_rect = (0, screenY-(screenY//tiles), screenX, screenY//tiles)
+    dice = pygame.transform.scale(pygame.image.load('die.png'), (screenX, screenY//tiles))
+
+    if tile:
+        versus = "It's Player " + str(players[player].Id) + " VS " + str(tilelist[defender].Owner)
+        left_side = players[player].Color
+        right_side = players[tilelist[defender].Owner].Color
+    elif not tile:
+        versus = "It's Player " + str(players[player].Id) + " VS " + str(players[defender].Id)
+        left_side = players[player].Color
+        right_side = players[defender].Color
+
+    left_rect = (0, 0, screenX//2, screenY)
+    right_rect = (screenX//2, 0, screenX//2, screenY)
+    screen.fill(left_side, left_rect)
+    screen.fill(right_side, right_rect)
+
+    fight_text = font.render("Fight till death!", True, (255,255,255))
+    versus_text = font.render(versus, True, (255,255,255))
+    fight_button=screen.fill((0,0,0), fight_rect)
+    screen.blit(fight_text, (screenX//2-(len("Fight till death")*12), 50))
+    screen.blit(versus_text, (screenX//2-(len("It's player   VS   ")*12), 150))
+    screen.blit(dice, (0, screenY-(screenY//tiles)))
+
+    pygame.event.get()
+    (b1,b2,b3) = pygame.mouse.get_pressed()
+    mpos = pygame.mouse.get_pos()
+    if fight_button.collidepoint(mpos) and b1 == 1:
+        return
+    if pygame.key.get_pressed()[27] == 1:
+        menu()
+    if pygame.key.get_pressed()[113] == 1:
+        pygame.quit()
+    pygame.event.wait()
+    fight(player, defender, tile)
 
 
 def main():
