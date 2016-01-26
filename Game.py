@@ -72,7 +72,7 @@ def menu():
     black = (0, 0, 0)
     red = (150, 0, 0)
     screen.fill(red)
-    logotexture = pygame.transform.scale(pygame.image.load('logo_super.png'), (screenX, screenY))
+    logotexture = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX, screenY))
     screen.blit(logotexture, (0,0))
 
     #buttons (x, y, size x, size y)
@@ -204,7 +204,7 @@ def fight(player, defender, tile):
 
     font = pygame.font.SysFont("Helvetica", 70)
     fight_rect = (0, screenY-(screenY//tiles), screenX, screenY//tiles)
-    dice = pygame.transform.scale(pygame.image.load('die.png'), (screenX, screenY//tiles))
+    button_fight = pygame.transform.scale(pygame.image.load('button_fight.png'), (screenX//tiles, screenY//tiles))
 
     if tile:
         versus = "It's Player " + str(players[player].Id) + " VS " + str(tilelist[defender].Owner)
@@ -225,7 +225,7 @@ def fight(player, defender, tile):
     fight_button=screen.fill((0,0,0), fight_rect)
     screen.blit(fight_text, (screenX//2-(len("Fight till death")*12), 50))
     screen.blit(versus_text, (screenX//2-(len("It's player   VS   ")*12), 150))
-    screen.blit(dice, (0, screenY-(screenY//tiles)))
+    screen.blit(button_fight, (screenX//2-(screenX//(tiles//2)), screenY-(screenY//tiles)))
     screen.blit(card1, ((screenX//tiles), screenY//3))
     screen.blit(card2, ((screenX//2+screenX//tiles, screenY//3)))
 
@@ -253,7 +253,7 @@ def main():
         screenY = screenY//HDPI
     screenX -= 100
     screenY -= 100
-    screen = pygame.display.set_mode((screenX, screenY))
+    screen = pygame.display.set_mode((screenX, screenY), HWSURFACE)
     global screenX
     global screenY
 
