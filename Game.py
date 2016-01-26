@@ -4,6 +4,7 @@ import pygame
 from pygame.locals import *
 import os
 import random
+import pickle
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
@@ -22,47 +23,80 @@ def createBoard():
         for j in range(tiles):
             tile = (screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles)
             if i == 0 or j == 0 or i == tiles-1 or j == tiles-1:
-                if i == 0 and j == 0:
+                if (i == 0 and j == 0) or (i == 0 and j == 1) or (i == 1 and j == 0):
                     pygame.draw.rect(screen, players[0].Color, tile)
-                elif i == tiles-1 and j == 0:
+                elif (i == tiles-1 and j == 0) or (i == tiles-1 and j == 1) or (i == tiles-2 and j == 0):
                     pygame.draw.rect(screen, players[1].Color, tile)
-                elif i == 0 and j == tiles-1:
+                elif (i == 0 and j == tiles-1) or (i == 0 and j == tiles-2) or (i == 1 and j == tiles-1):
                     pygame.draw.rect(screen, players[3].Color, tile)
-                elif i == tiles-1 and j == tiles-1:
+                elif (i == tiles-1 and j == tiles-1) or (i == tiles-1 and j == tiles-2) or (i == tiles-2 and j == tiles-1):
                     pygame.draw.rect(screen, players[2].Color, tile)
                 else:
-                    pygame.draw.rect(screen,(0,200,255),tile, 10)
+                    pygame.draw.rect(screen,(60,60,60),tile, 10)
             else:
-                pygame.draw.rect(screen,(255, 255, 255),tile)
-    center = pygame.transform.scale(pygame.image.load('logo_super.png'), (screenX-(screenX//tiles*2), screenY-(screenY//tiles*2)))
+                pygame.draw.rect(screen,(0, 0, 0),tile)
+    center = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX-(screenX//tiles*2), screenY-(screenY//tiles*2)))
     screen.blit(center, (screenX//tiles, screenY//tiles))
 
 def createList(s, i, j):
     maxtile = tiles-1
 
-    if i == 0 and j == 0:
+    if i == 0 and j == 0: #topleft corner center
         tilelist[s] = Tile(s, i, j, "corner", 0)
+        createList(s+1, i, j+1)
+    elif i == 0 and j == 1: #topleft corner right
+        tilelist[s] = Tile(s, i, j, "corner", 0)
+        createList(s+1, i, j+1)
+    elif i == 0 and j == tiles//2:
+        tilelist[s] = Tile(s, i, j, "superfight", -1)
+        createList(s+1, i, j+1)
+    elif i == 0 and j == maxtile-1: #topright corner left
+        tilelist[s] = Tile(s, i, j, "corner", 1)
         createList(s+1, i, j+1)
     elif i == 0 and j > 0 and j < maxtile:
         tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i, j+1)
-    elif i == 0 and j == maxtile:
+    elif i == 0 and j == maxtile: #topright corner center
         tilelist[s] = Tile(s, i, j, "corner", 1)
+        createList(s+1, i+1, j)
+    elif i == 1 and j == maxtile: #topright corner bottom
+        tilelist[s] = Tile(s, i, j, "corner", 1)
+        createList(s+1, i+1, j)
+    elif i == tiles//2 and j == maxtile:
+        tilelist[s] = Tile(s, i, j, "superfight", -1)
+        createList(s+1, i+1, j)
+    elif i == maxtile-1 and j == maxtile: #bottomright corner top
+        tilelist[s] = Tile(s, i, j, "corner", 2)
         createList(s+1, i+1, j)
     elif i > 0 and i < maxtile and j == maxtile:
         tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i+1, j)
-    elif i == maxtile and j == maxtile:
+    elif i == maxtile and j == maxtile: #bottomright corner center
         tilelist[s] = Tile(s, i, j, "corner", 2)
+        createList(s+1, i, j-1)
+    elif i == maxtile and j == maxtile-1: #bottomright corner left
+        tilelist[s] = Tile(s, i, j, "corner", 2)
+        createList(s+1, i, j-1)
+    elif i == maxtile and j == tiles//2:
+        tilelist[s] = Tile(s, i, j, "superfight", -1)
+        createList(s+1, i, j-1)
+    elif i == maxtile and j == maxtile-1: #bottomleft corner right
+        tilelist[s] = Tile(s, i, j, "corner", 3)
         createList(s+1, i, j-1)
     elif i == maxtile and j > 0 and j < maxtile:
         tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i, j-1)
-    elif i == maxtile and j == 0:
+    elif i == maxtile and j == 0: #bottomleft corner center
         tilelist[s] = Tile(s, i, j, "corner", 3)
         createList(s+1, i-1, j)
-    elif i == 1 and j == 0:
-        tilelist[s] = Tile(s, i, j, "general", -1)
+    elif i == maxtile-1 and j == 0: #bottomleft corner top
+        tilelist[s] = Tile(s, i, j, "corner", 3)
+        createList(s+1, i-1, j)
+    elif i == 1 and j == 0: #topleft corner bottom
+        tilelist[s] = Tile(s, i, j, "corner", 0)
+    elif i == tiles//2 and j == 0:
+        tilelist[s] = Tile(s, i, j, "superfight", -1)
+        createList(s+1, i-1, j)
     elif i > 0 and i < maxtile and j == 0:
         tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i-1, j)
@@ -71,29 +105,38 @@ def menu():
     pygame.display.flip()
     black = (0, 0, 0)
     red = (150, 0, 0)
+    data1 = []
     screen.fill(red)
     logotexture = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX, screenY))
     screen.blit(logotexture, (0,0))
 
     #buttons (x, y, size x, size y)
-    start_rect = (0, 50, screenX, 75)
-    instruct_rect = (0, 150, screenX, 75)
-    exit_rect = (0, 250, screenX, 75) 
+    start_rect = (0, 50, screenX//2.5, 75)
+    instruct_rect = (0, 150, screenX//2.5, 75)
+    save_rect = (0, 250, screenX//2.5, 75)
+    load_rect = (0, 350, screenX//2.5, 75)
+    exit_rect = (0, 550, screenX//2.5, 75) 
 
     start_button=screen.fill(black, start_rect)
     instruct_button=screen.fill(black, instruct_rect)
+    save_button=screen.fill(black, save_rect)
+    load_button=screen.fill(black, load_rect)
     exit_button=screen.fill(black, exit_rect)
 
     #text Text, AA , color
     my_font = pygame.font.SysFont("Arial", 70)
-    startB_text = my_font.render('RESUME GAME', True, (255,255,255))
+    startB_text = my_font.render('START GAME', True, (255,255,255))
     instructB_text = my_font.render('INSTRUCTIONS', True, (255,255,255))
+    saveB_text = my_font.render('SAVE', True, (255,255,255))
+    loadB_text = my_font.render('LOAD', True, (255,255,255))
     exitB_text = my_font.render("EXIT", True, (255,255,255))
     
     #draw text
-    screen.blit(startB_text,(screenX//2-(len("RESUME GAME")*20), 50))
-    screen.blit(instructB_text,(screenX//2-(len("INSTRUCTIONS")*20), 150))
-    screen.blit(exitB_text, (screenX//2-(len("EXIT")*20), 250))
+    screen.blit(startB_text,(0, 50))
+    screen.blit(instructB_text,(0, 150))
+    screen.blit(saveB_text,(0, 250))
+    screen.blit(loadB_text,(0, 350))
+    screen.blit(exitB_text, (0, 550))
 
     #button actions
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -102,6 +145,37 @@ def menu():
         return
     if instruct_button.collidepoint(mpos) & b1==1:
         instructions()
+    if save_button.collidepoint(mpos) & b1==1:
+        for s in range(numberOfPlayers):
+            data1.append(players[s].Id)
+            data1.append(players[s].Position)
+            data1.append(players[s].X)
+            data1.append(players[s].Y)
+            data1.append(players[s].Health)
+            data1.append(players[s].Stamina)
+            data1.append(players[s].Card)
+            data1.append(players[s].Color)
+            data1.append(players[s].Removed)
+        with open('savefile', 'wb') as f:
+            pickle.dump(data1, f)
+        print("Saved!")
+    if load_button.collidepoint(mpos) & b1==1:
+        with open('savefile', 'rb') as f:
+            data1 = pickle.load(f)
+        for s in range(numberOfPlayers):        #id, sprite, position, x, y, health, stamina, name, color, removed):
+            print("Imported:", data1[s*9])
+            players[s].Id = data1[s*9]
+            players[s].Position = data1[s*9+1]
+            players[s].X = data1[s*9+2]
+            players[s].Y = data1[s*9+3]
+            players[s].Health = data1[s*9+4]
+            players[s].Stamina = data1[s*9+5]
+            players[s].Card = data1[s*9+6]
+            players[s].Color = data1[s*9+7]
+            players[s].Removed = data1[s*9+8]
+            global players
+        print("Loaded!")
+        return
     if exit_button.collidepoint(mpos) and b1==1:
         pygame.quit()
     if pygame.key.get_pressed()[113] == 1:
@@ -136,6 +210,7 @@ def instructions():
         pygame.quit()
     pygame.event.wait()
     instructions()
+
 class Player():
     def __init__(self, id, sprite, position, x, y, health, stamina, card, color, removed):
         self.Id = id
@@ -169,6 +244,7 @@ def playerMove(s, forward):
 
 def turn(player):
     forward = random.randint(1,6)
+    forward = 1
     global playerN
     global forward
     if player == numberOfPlayers-1:
@@ -303,7 +379,7 @@ def main():
         ev = pygame.event.poll()
         if ev.type == pygame.QUIT:
             break
-        screen.fill((255, 255, 255))
+        screen.fill((0, 0, 0))
         createBoard()
 
         pygame.event.pump()
@@ -321,6 +397,7 @@ def main():
         if dice_button.collidepoint(mpos) and b1 == 1:
             turn(playerN)
 
+        data1 = []
         for s in range(numberOfPlayers):
             screen.blit(players[s].Sprite, (players[s].X, players[s].Y))
 
@@ -329,7 +406,8 @@ def main():
             menu()
         if pygame.key.get_pressed()[113] == 1:
             pygame.quit()
-            break 
+            break
+
         my_clock = pygame.time.Clock()
         my_clock.tick(60)
 
