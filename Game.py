@@ -114,22 +114,15 @@ def instructions():
     black = (0, 0, 0)
     red = (150, 0, 0)
     screen.fill(red)
-    logotexture = pygame.transform.scale(pygame.image.load('logo_super.png'), (screenX, screenY))
+    logotexture = pygame.transform.scale(pygame.image.load('manual.png'), (screenX, screenY))
     screen.blit(logotexture, (0,0))
 
-    background_rect = (0, 50, screenX, screenY-200)
-    background=screen.fill(black, background_rect)
     return_rect = (0, screenY-100, screenX, 75)
     return_button=screen.fill(black, return_rect)
     #text Text, AA , color
-    font = pygame.font.SysFont("Arial", 40)
-    background_text1 = font.render("1.Press the escape key to open the menu", True, (255,255,255))
-    background_text2 = font.render("2.To move your player press the 'Roll dice' button", True, (255,255,255))
     font = pygame.font.SysFont("Arial", 70)
     return_text = font.render('RETURN', True, (255,255,255))
     #draw text
-    screen.blit(background_text1,(screenX//2-(len("1.Press the escape key to open the menu")*8), 150))
-    screen.blit(background_text2,(screenX//2-(len("2.To move your player press the 'Roll dice' button")*8), 250))
     screen.blit(return_text, (screenX//2-(len("RETURN")*20), screenY-100))
 
     #button actions
@@ -143,7 +136,6 @@ def instructions():
         pygame.quit()
     pygame.event.wait()
     instructions()
-
 class Player():
     def __init__(self, id, sprite, position, x, y, health, stamina, card, color, removed):
         self.Id = id
