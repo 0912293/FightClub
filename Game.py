@@ -193,6 +193,10 @@ def checkFight(player):
         if (players[player].Position == players[s].Position and players[player].Id != players[s].Id):
             fight(player, s, False)
     for s in range(len(tilelist)-1):
+        if players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player == tilelist[s].Owner:
+            players[player].Stamina = 15
+            print("Player", player, "'s Stamina is now:", players[player].Stamina)
+            break
         if players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner:
             fight(player, s, True)
 
