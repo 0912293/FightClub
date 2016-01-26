@@ -313,7 +313,6 @@ def fight(player, defender, tile):
     pygame.event.wait()
     fight(player, defender, tile)
 
-
 def main():
     pygame.init()      # Prepare the pygame module for use
     pygame.display.set_caption('Fightclub')
