@@ -35,7 +35,7 @@ def createBoard():
             else:
                 pygame.draw.rect(screen,(255, 255, 255),tile)
     center = pygame.transform.scale(pygame.image.load('logo_super.png'), (screenX-(screenX//tiles*2), screenY-(screenY//tiles*2)))
-    screen.blit(center, (screenX//tiles,screenY//tiles))
+    screen.blit(center, (screenX//tiles, screenY//tiles))
 
 def createList(s, i, j):
     maxtile = tiles-1
@@ -145,7 +145,7 @@ def instructions():
     instructions()
 
 class Player():
-    def __init__(self, id, sprite, position, x, y, health, stamina, name, color, removed):
+    def __init__(self, id, sprite, position, x, y, health, stamina, card, color, removed):
         self.Id = id
         self.Sprite = sprite
         self.Position = position
@@ -153,14 +153,14 @@ class Player():
         self.Y = y
         self.Health = health
         self.Stamina = stamina
-        self.Name = name
+        self.Card = card
         self.Color = color[id]
         self.Removed = removed
 
 def playerCreate():
     players = {"":""}
     for s in range(0, numberOfPlayers):
-        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles-10, screenY//tiles-10)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles)+5, tilelist[(tiles-1)*s].Y*(screenY//tiles)+5, 100, 15, "name", playerColors, False)
+        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles-10, screenY//tiles-10)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles)+5, tilelist[(tiles-1)*s].Y*(screenY//tiles)+5, 100, 15, s, playerColors, False)
     global players
 
 def playerMove(s, forward):
@@ -199,8 +199,8 @@ def checkFight(player):
 def fight(player, defender, tile):
     pygame.display.flip()
     screen.fill((0, 0, 0))
-    card1 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(player+1) + ".png")), (screenX, screenY))
-    card2 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(random.randint(1,18)) + ".png")), (screenX, screenY))
+    card1 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(player+1) + ".png")), (screenX//3, screenY//3))
+    card2 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(random.randint(1,18)) + ".png")), (screenX//3, screenY//3))
 
     font = pygame.font.SysFont("Helvetica", 70)
     fight_rect = (0, screenY-(screenY//tiles), screenX, screenY//tiles)
@@ -226,6 +226,8 @@ def fight(player, defender, tile):
     screen.blit(fight_text, (screenX//2-(len("Fight till death")*12), 50))
     screen.blit(versus_text, (screenX//2-(len("It's player   VS   ")*12), 150))
     screen.blit(dice, (0, screenY-(screenY//tiles)))
+    screen.blit(card1, ((screenX//tiles), screenY//3))
+    screen.blit(card2, ((screenX//2+screenX//tiles, screenY//3)))
 
     pygame.event.get()
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -254,12 +256,30 @@ def main():
     screen = pygame.display.set_mode((screenX, screenY))
     global screenX
     global screenY
+
+    cardName = {0:"Rocky Belboa", 1:"Manny Pecquiao", 2:"Mike Tysen", 3:"Badr Heri"}
+
+    cardAttacks = {0: {1:-10, 2:-20, 3:-30},
+        1: {1:-10, 2:-20, 3:-30},
+        2: {1:-10, 2:-20, 3:-30},
+        3: {1:-10, 2:-20, 3:-30}}
+
+    cardStamina = {0: {1:-3, 2:-6, 3:-9},
+        1: {1:-3, 2:-6, 3:-9},
+        2: {1:-3, 2:-6, 3:-9},
+        3: {1:-3, 2:-6, 3:-9}}
+
+    global cardName
+    global cardAttacks
+    global cardStamina
     
     # for i in range(0,200):
     #   print(pygame.key.name(i), i)
 
+    pygame.mixer.init(44100, -16,2,2048)
+
     try:
-        pygame.mixer.music.load('music.mp3') # Attempts to play music
+        pygame.mixer.music.load('music.wav') # Attempts to play music
         pygame.mixer.music.play(-1, 0.0)
     except:
         pass
