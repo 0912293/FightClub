@@ -1,3 +1,4 @@
+
 import sys
 import pygame
 from pygame.locals import *
@@ -21,14 +22,20 @@ def createBoard():
         for j in range(tiles):
             tile = (screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles)
             if i == 0 or j == 0 or i == tiles-1 or j == tiles-1:
-                if (i == 0 and j == 0) or (i == tiles-1 and j == 0) or (i == 0 and j == tiles-1) or (i == tiles-1 and j == tiles-1):
-                    pygame.draw.rect(screen,(0,255,0),tile)
+                if i == 0 and j == 0:
+                    pygame.draw.rect(screen, players[0].Color, tile)
+                elif i == tiles-1 and j == 0:
+                    pygame.draw.rect(screen, players[1].Color, tile)
+                elif i == 0 and j == tiles-1:
+                    pygame.draw.rect(screen, players[3].Color, tile)
+                elif i == tiles-1 and j == tiles-1:
+                    pygame.draw.rect(screen, players[2].Color, tile)
                 else:
                     pygame.draw.rect(screen,(0,200,255),tile, 10)
             else:
                 pygame.draw.rect(screen,(255, 255, 255),tile)
     center = pygame.transform.scale(pygame.image.load('logo_super.png'), (screenX-(screenX//tiles*2), screenY-(screenY//tiles*2)))
-    screen.blit(center, (screenX//tiles,screenY//tiles))
+    screen.blit(center, (screenX//tiles, screenY//tiles))
 
 def createList(s, i, j):
     maxtile = tiles-1
@@ -65,7 +72,7 @@ def menu():
     black = (0, 0, 0)
     red = (150, 0, 0)
     screen.fill(red)
-    logotexture = pygame.transform.scale(pygame.image.load('logo_super.png'), (screenX, screenY))
+    logotexture = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX, screenY))
     screen.blit(logotexture, (0,0))
 
     #buttons (x, y, size x, size y)
@@ -138,7 +145,7 @@ def instructions():
     instructions()
 
 class Player():
-    def __init__(self, id, sprite, position, x, y, health, stamina, name, color, removed):
+    def __init__(self, id, sprite, position, x, y, health, stamina, card, color, removed):
         self.Id = id
         self.Sprite = sprite
         self.Position = position
@@ -146,14 +153,14 @@ class Player():
         self.Y = y
         self.Health = health
         self.Stamina = stamina
-        self.Name = name
+        self.Card = card
         self.Color = color[id]
         self.Removed = removed
 
 def playerCreate():
     players = {"":""}
     for s in range(0, numberOfPlayers):
-        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles, screenY//tiles)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles), tilelist[(tiles-1)*s].Y*(screenY//tiles), 100, 15, "name", playerColors, False)
+        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles-10, screenY//tiles-10)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles)+5, tilelist[(tiles-1)*s].Y*(screenY//tiles)+5, 100, 15, s, playerColors, False)
     global players
 
 def playerMove(s, forward):
@@ -163,8 +170,8 @@ def playerMove(s, forward):
     players[s].Position += forward
     for i in range(len(tilelist)-1):
         if tilelist[i].Id == players[s].Position:
-            players[s].X = tilelist[i].X*(screenX//tiles)
-            players[s].Y = tilelist[i].Y*(screenY//tiles)
+            players[s].X = tilelist[i].X*(screenX//tiles)+5
+            players[s].Y = tilelist[i].Y*(screenY//tiles)+5
             pygame.display.flip()
             break
 
@@ -184,16 +191,55 @@ def turn(player):
 def checkFight(player):
     for s in range(len(players)-1):
         if (players[player].Position == players[s].Position and players[player].Id != players[s].Id):
-            print("Fight!")
+            fight(player, s, False)
     for s in range(len(tilelist)-1):
         if players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner:
-            print("Cornerfight!")
+            fight(player, s, True)
 
-def fight(player):
+def fight(player, defender, tile):
     pygame.display.flip()
-    screen.fill((150, 0, 0))
-    card1 = pygame.transform.scale(pygame.image.load(os.path.join("img" + "sf", str(player), ".png")), (screenX, screenY))
-    card2 = pygame.transform.scale(pygame.image.load(os.path.join("img" + "sf", str(random.randint(1,19)), ".png")), (screenX, screenY))
+    screen.fill((0, 0, 0))
+    card1 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(player+1) + ".png")), (screenX//3, screenY//3))
+    card2 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(random.randint(1,18)) + ".png")), (screenX//3, screenY//3))
+
+    font = pygame.font.SysFont("Helvetica", 70)
+    fight_rect = (0, screenY-(screenY//tiles), screenX, screenY//tiles)
+    button_fight = pygame.transform.scale(pygame.image.load('button_fight.png'), (screenX//tiles, screenY//tiles))
+
+    if tile:
+        versus = "It's Player " + str(players[player].Id) + " VS " + str(tilelist[defender].Owner)
+        left_side = players[player].Color
+        right_side = players[tilelist[defender].Owner].Color
+    elif not tile:
+        versus = "It's Player " + str(players[player].Id) + " VS " + str(players[defender].Id)
+        left_side = players[player].Color
+        right_side = players[defender].Color
+
+    left_rect = (0, 0, screenX//2, screenY)
+    right_rect = (screenX//2, 0, screenX//2, screenY)
+    screen.fill(left_side, left_rect)
+    screen.fill(right_side, right_rect)
+
+    fight_text = font.render("Fight till death!", True, (255,255,255))
+    versus_text = font.render(versus, True, (255,255,255))
+    fight_button=screen.fill((0,0,0), fight_rect)
+    screen.blit(fight_text, (screenX//2-(len("Fight till death")*12), 50))
+    screen.blit(versus_text, (screenX//2-(len("It's player   VS   ")*12), 150))
+    screen.blit(button_fight, (screenX//2-(screenX//(tiles//2)), screenY-(screenY//tiles)))
+    screen.blit(card1, ((screenX//tiles), screenY//3))
+    screen.blit(card2, ((screenX//2+screenX//tiles, screenY//3)))
+
+    pygame.event.get()
+    (b1,b2,b3) = pygame.mouse.get_pressed()
+    mpos = pygame.mouse.get_pos()
+    if fight_button.collidepoint(mpos) and b1 == 1:
+        return
+    if pygame.key.get_pressed()[27] == 1:
+        menu()
+    if pygame.key.get_pressed()[113] == 1:
+        pygame.quit()
+    pygame.event.wait()
+    fight(player, defender, tile)
 
 
 def main():
@@ -207,15 +253,33 @@ def main():
         screenY = screenY//HDPI
     screenX -= 100
     screenY -= 100
-    screen = pygame.display.set_mode((screenX, screenY))
+    screen = pygame.display.set_mode((screenX, screenY), HWSURFACE)
     global screenX
     global screenY
+
+    cardName = {0:"Rocky Belboa", 1:"Manny Pecquiao", 2:"Mike Tysen", 3:"Badr Heri"}
+
+    cardAttacks = {0: {1:-10, 2:-20, 3:-30},
+        1: {1:-10, 2:-20, 3:-30},
+        2: {1:-10, 2:-20, 3:-30},
+        3: {1:-10, 2:-20, 3:-30}}
+
+    cardStamina = {0: {1:-3, 2:-6, 3:-9},
+        1: {1:-3, 2:-6, 3:-9},
+        2: {1:-3, 2:-6, 3:-9},
+        3: {1:-3, 2:-6, 3:-9}}
+
+    global cardName
+    global cardAttacks
+    global cardStamina
     
     # for i in range(0,200):
     #   print(pygame.key.name(i), i)
 
+    pygame.mixer.init(44100, -16,2,2048)
+
     try:
-        pygame.mixer.music.load('music.mp3') # Attempts to play music
+        pygame.mixer.music.load('music.wav') # Attempts to play music
         pygame.mixer.music.play(-1, 0.0)
     except:
         pass
