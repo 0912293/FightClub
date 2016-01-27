@@ -182,6 +182,8 @@ def menu():
     mpos = pygame.mouse.get_pos()
     if ng_button.collidepoint(mpos) and b1==1:
         newgame()
+        if ng == True:
+            return
     if start_button.collidepoint(mpos) and b1==1:
         return
     if instruct_button.collidepoint(mpos) & b1==1:
@@ -223,8 +225,6 @@ def menu():
         pygame.quit()
     if pygame.key.get_pressed()[113] == 1:
         pygame.quit()
-    if ng == True:
-        return
     pygame.event.wait()
     menu()
 
@@ -292,8 +292,8 @@ def settings():
     global music_playing
 
     #buttons (x, y, size x, size y)
-    mute_rect = (0, 50, screenX//2.5, 75)
-    return_rect = (0, 550, screenX//2.5, 75)
+    mute_rect = (screenX-screenX//2.5, 50,screenX//2.5, 75)
+    return_rect = (screenX-screenX//2.5, 550, screenX//2.5, 75)
 
     mute_button=screen.fill(black, mute_rect)
     return_button=screen.fill(black, return_rect)
@@ -304,8 +304,8 @@ def settings():
     returnB_text = my_font.render("RETURN", True, (255,255,255))
 
     #draw text
-    screen.blit(muteB_text,(0, 50))
-    screen.blit(returnB_text, (0, 550))
+    screen.blit(muteB_text,(screenX-screenX//2.5, 50))
+    screen.blit(returnB_text, (screenX-screenX//2.5, 550))
 
 
     #button actions
