@@ -24,13 +24,25 @@ def createBoard():
             tile = (screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles)
             if i == 0 or j == 0 or i == tiles-1 or j == tiles-1:
                 if (i == 0 and j == 0) or (i == 0 and j == 1) or (i == 1 and j == 0):
-                    pygame.draw.rect(screen, players[0].Color, tile)
+                    try:
+                        pygame.draw.rect(screen, players[0].Color, tile)
+                    except:
+                        pass
                 elif (i == tiles-1 and j == 0) or (i == tiles-1 and j == 1) or (i == tiles-2 and j == 0):
-                    pygame.draw.rect(screen, players[1].Color, tile)
+                    try:
+                        pygame.draw.rect(screen, players[1].Color, tile)
+                    except:
+                        pass
                 elif (i == 0 and j == tiles-1) or (i == 0 and j == tiles-2) or (i == 1 and j == tiles-1):
-                    pygame.draw.rect(screen, players[3].Color, tile)
+                    try:
+                        pygame.draw.rect(screen, players[3].Color, tile)
+                    except:
+                        pass
                 elif (i == tiles-1 and j == tiles-1) or (i == tiles-1 and j == tiles-2) or (i == tiles-2 and j == tiles-1):
-                    pygame.draw.rect(screen, players[2].Color, tile)
+                    try:
+                        pygame.draw.rect(screen, players[2].Color, tile)
+                    except:
+                        pass
                 else:
                     pygame.draw.rect(screen,(60,60,60),tile, 10)
             else:
@@ -41,59 +53,76 @@ def createBoard():
 def createList(s, i, j):
     maxtile = tiles-1
 
+    if numberOfPlayers >= 1:
+        corner0 = "corner"
+    else:
+        corner0 = "general"
+    if numberOfPlayers >= 2:
+        corner1 = "corner"
+    else:
+        corner1 = "general"
+    if numberOfPlayers >= 3:
+        corner2 = "corner"
+    else:
+        corner2 = "general"
+    if numberOfPlayers >= 4:
+        corner3 = "corner"
+    else:
+        corner3 = "general"
+
     if i == 0 and j == 0: #topleft corner center
-        tilelist[s] = Tile(s, i, j, "corner", 0)
+        tilelist[s] = Tile(s, i, j, corner0, 0)
         createList(s+1, i, j+1)
     elif i == 0 and j == 1: #topleft corner right
-        tilelist[s] = Tile(s, i, j, "corner", 0)
+        tilelist[s] = Tile(s, i, j, corner0, 0)
         createList(s+1, i, j+1)
     elif i == 0 and j == tiles//2:
         tilelist[s] = Tile(s, i, j, "superfight", -1)
         createList(s+1, i, j+1)
     elif i == 0 and j == maxtile-1: #topright corner left
-        tilelist[s] = Tile(s, i, j, "corner", 1)
+        tilelist[s] = Tile(s, i, j, corner1, 1)
         createList(s+1, i, j+1)
     elif i == 0 and j > 0 and j < maxtile:
         tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i, j+1)
     elif i == 0 and j == maxtile: #topright corner center
-        tilelist[s] = Tile(s, i, j, "corner", 1)
+        tilelist[s] = Tile(s, i, j, corner1, 1)
         createList(s+1, i+1, j)
     elif i == 1 and j == maxtile: #topright corner bottom
-        tilelist[s] = Tile(s, i, j, "corner", 1)
+        tilelist[s] = Tile(s, i, j, corner1, 1)
         createList(s+1, i+1, j)
     elif i == tiles//2 and j == maxtile:
         tilelist[s] = Tile(s, i, j, "superfight", -1)
         createList(s+1, i+1, j)
     elif i == maxtile-1 and j == maxtile: #bottomright corner top
-        tilelist[s] = Tile(s, i, j, "corner", 2)
+        tilelist[s] = Tile(s, i, j, corner2, 2)
         createList(s+1, i+1, j)
     elif i > 0 and i < maxtile and j == maxtile:
         tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i+1, j)
     elif i == maxtile and j == maxtile: #bottomright corner center
-        tilelist[s] = Tile(s, i, j, "corner", 2)
+        tilelist[s] = Tile(s, i, j, corner2, 2)
         createList(s+1, i, j-1)
     elif i == maxtile and j == maxtile-1: #bottomright corner left
-        tilelist[s] = Tile(s, i, j, "corner", 2)
+        tilelist[s] = Tile(s, i, j, corner2, 2)
         createList(s+1, i, j-1)
     elif i == maxtile and j == tiles//2:
         tilelist[s] = Tile(s, i, j, "superfight", -1)
         createList(s+1, i, j-1)
     elif i == maxtile and j == maxtile-1: #bottomleft corner right
-        tilelist[s] = Tile(s, i, j, "corner", 3)
+        tilelist[s] = Tile(s, i, j, corner3, 3)
         createList(s+1, i, j-1)
     elif i == maxtile and j > 0 and j < maxtile:
         tilelist[s] = Tile(s, i, j, "general", -1)
         createList(s+1, i, j-1)
     elif i == maxtile and j == 0: #bottomleft corner center
-        tilelist[s] = Tile(s, i, j, "corner", 3)
+        tilelist[s] = Tile(s, i, j, corner3, 3)
         createList(s+1, i-1, j)
     elif i == maxtile-1 and j == 0: #bottomleft corner top
-        tilelist[s] = Tile(s, i, j, "corner", 3)
+        tilelist[s] = Tile(s, i, j, corner3, 3)
         createList(s+1, i-1, j)
     elif i == 1 and j == 0: #topleft corner bottom
-        tilelist[s] = Tile(s, i, j, "corner", 0)
+        tilelist[s] = Tile(s, i, j, corner0, 0)
     elif i == tiles//2 and j == 0:
         tilelist[s] = Tile(s, i, j, "superfight", -1)
         createList(s+1, i-1, j)
@@ -357,7 +386,7 @@ def main():
 
     tilelist = {"": ""}
     tiles = 11
-    numberOfPlayers = 4
+    numberOfPlayers = 1
     playerN = 0
     forward = 0
     playerColors = {0: (189,33,50), 1: (26,118,186), 2: (15,103,59), 3: (254,220,56)}
