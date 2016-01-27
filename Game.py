@@ -140,31 +140,30 @@ def menu():
 
     #buttons (x, y, size x, size y)
     start_rect = (0, 50, screenX//2.5, 75)
-    instruct_rect = (0, 150, screenX//2.5, 75)
+    manual_rect = (0, 150, screenX//2.5, 75)
     save_rect = (0, 250, screenX//2.5, 75)
     load_rect = (0, 350, screenX//2.5, 75)
     exit_rect = (0, 550, screenX//2.5, 75) 
 
-    start_button=screen.fill(black, start_rect)
-    instruct_button=screen.fill(black, instruct_rect)
-    save_button=screen.fill(black, save_rect)
-    load_button=screen.fill(black, load_rect)
-    exit_button=screen.fill(black, exit_rect)
+    start_button = screen.fill(black, start_rect)
+    instruct_button = screen.fill(black, manual_rect)
+    save_button = screen.fill(black, save_rect)
+    load_button = screen.fill(black, load_rect)
+    exit_button = screen.fill(black, exit_rect)
 
-    #text Text, AA , color
-    my_font = pygame.font.SysFont("Arial", 70)
-    startB_text = my_font.render('START GAME', True, (255,255,255))
-    instructB_text = my_font.render('INSTRUCTIONS', True, (255,255,255))
-    saveB_text = my_font.render('SAVE', True, (255,255,255))
-    loadB_text = my_font.render('LOAD', True, (255,255,255))
-    exitB_text = my_font.render("EXIT", True, (255,255,255))
+    #load images
+    startB_img = pygame.transform.scale(pygame.image.load('b_start.png'), (screenX//2, 75))
+    manualB_img = pygame.transform.scale(pygame.image.load('b_manual.png'), (screenX//2, 75))
+    saveB_img = pygame.transform.scale(pygame.image.load('b_save.png'), (screenX//2, 75))
+    loadB_img = pygame.transform.scale(pygame.image.load('b_load.png'), (screenX//2, 75))
+    exitB_img = pygame.transform.scale(pygame.image.load('b_exit.png'), (screenX//2, 75))
     
-    #draw text
-    screen.blit(startB_text,(0, 50))
-    screen.blit(instructB_text,(0, 150))
-    screen.blit(saveB_text,(0, 250))
-    screen.blit(loadB_text,(0, 350))
-    screen.blit(exitB_text, (0, 550))
+    #draw images
+    screen.blit(startB_img, (0, 50))
+    screen.blit(manualB_img, (0, 150))
+    screen.blit(saveB_img, (0, 250))
+    screen.blit(loadB_img, (0, 350))
+    screen.blit(exitB_img, (0, 550))
 
     #button actions
     (b1,b2,b3) = pygame.mouse.get_pressed()
