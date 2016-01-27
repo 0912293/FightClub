@@ -1,4 +1,3 @@
-
 import sys
 import pygame
 from pygame.locals import *
@@ -132,7 +131,7 @@ def createList(s, i, j):
 
 def menu():
     pygame.display.flip()
-    black = (0, 0, 0)
+    black = (0, 0, 0, 0)
     red = (150, 0, 0)
     data1 = []
     screen.fill(red)
@@ -141,31 +140,30 @@ def menu():
 
     #buttons (x, y, size x, size y)
     start_rect = (0, 50, screenX//2.5, 75)
-    instruct_rect = (0, 150, screenX//2.5, 75)
+    manual_rect = (0, 150, screenX//2.5, 75)
     save_rect = (0, 250, screenX//2.5, 75)
     load_rect = (0, 350, screenX//2.5, 75)
     exit_rect = (0, 550, screenX//2.5, 75) 
 
-    start_button=screen.fill(black, start_rect)
-    instruct_button=screen.fill(black, instruct_rect)
-    save_button=screen.fill(black, save_rect)
-    load_button=screen.fill(black, load_rect)
-    exit_button=screen.fill(black, exit_rect)
+    start_button = screen.fill(black, start_rect)
+    instruct_button = screen.fill(black, manual_rect)
+    save_button = screen.fill(black, save_rect)
+    load_button = screen.fill(black, load_rect)
+    exit_button = screen.fill(black, exit_rect)
 
-    #text Text, AA , color
-    my_font = pygame.font.SysFont("Arial", 70)
-    startB_text = my_font.render('START GAME', True, (255,255,255))
-    instructB_text = my_font.render('INSTRUCTIONS', True, (255,255,255))
-    saveB_text = my_font.render('SAVE', True, (255,255,255))
-    loadB_text = my_font.render('LOAD', True, (255,255,255))
-    exitB_text = my_font.render("EXIT", True, (255,255,255))
+    #load images
+    startB_img = pygame.transform.scale(pygame.image.load('b_start.png'), (screenX//2, 75))
+    manualB_img = pygame.transform.scale(pygame.image.load('b_manual.png'), (screenX//2, 75))
+    saveB_img = pygame.transform.scale(pygame.image.load('b_save.png'), (screenX//2, 75))
+    loadB_img = pygame.transform.scale(pygame.image.load('b_load.png'), (screenX//2, 75))
+    exitB_img = pygame.transform.scale(pygame.image.load('b_exit.png'), (screenX//2, 75))
     
-    #draw text
-    screen.blit(startB_text,(0, 50))
-    screen.blit(instructB_text,(0, 150))
-    screen.blit(saveB_text,(0, 250))
-    screen.blit(loadB_text,(0, 350))
-    screen.blit(exitB_text, (0, 550))
+    #draw images
+    screen.blit(startB_img, (0, 50))
+    screen.blit(manualB_img, (0, 150))
+    screen.blit(saveB_img, (0, 250))
+    screen.blit(loadB_img, (0, 350))
+    screen.blit(exitB_img, (0, 550))
 
     #button actions
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -185,6 +183,7 @@ def menu():
             data1.append(players[s].Card)
             data1.append(players[s].Color)
             data1.append(players[s].Removed)
+            data1.append(players[s].Name)
         with open('savefile', 'wb') as f:
             pickle.dump(data1, f)
         print("Saved!")
@@ -192,16 +191,17 @@ def menu():
         with open('savefile', 'rb') as f:
             data1 = pickle.load(f)
         for s in range(numberOfPlayers):        #id, sprite, position, x, y, health, stamina, name, color, removed):
-            print("Imported:", data1[s*9])
-            players[s].Id = data1[s*9]
-            players[s].Position = data1[s*9+1]
-            players[s].X = data1[s*9+2]
-            players[s].Y = data1[s*9+3]
-            players[s].Health = data1[s*9+4]
-            players[s].Stamina = data1[s*9+5]
-            players[s].Card = data1[s*9+6]
-            players[s].Color = data1[s*9+7]
-            players[s].Removed = data1[s*9+8]
+            print("Imported:", data1[s*10])
+            players[s].Id = data1[s*10]
+            players[s].Position = data1[s*10+1]
+            players[s].X = data1[s*10+2]
+            players[s].Y = data1[s*10+3]
+            players[s].Health = data1[s*10+4]
+            players[s].Stamina = data1[s*10+5]
+            players[s].Card = data1[s*10+6]
+            players[s].Color = data1[s*10+7]
+            players[s].Removed = data1[s*10+8]
+            players[s].Name = data1[s*10+9]
             global players
         print("Loaded!")
         return
@@ -241,7 +241,7 @@ def instructions():
     instructions()
 
 class Player():
-    def __init__(self, id, sprite, position, x, y, health, stamina, card, color, removed):
+    def __init__(self, id, sprite, position, x, y, health, stamina, card, color, removed, name):
         self.Id = id
         self.Sprite = sprite
         self.Position = position
@@ -252,15 +252,16 @@ class Player():
         self.Card = card
         self.Color = color[id]
         self.Removed = removed
+        self.Name = name
 
 def playerCreate():
     players = {"":""}
     for s in range(0, numberOfPlayers):
-        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawn24bit" + str(s+1) + ".png")), (screenX//tiles-10, screenY//tiles-10)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles)+5, tilelist[(tiles-1)*s].Y*(screenY//tiles)+5, 100, 15, s, playerColors, False)
+        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawns", "pawn" + str(s+1) + "-8bit.png")), (screenX//tiles-10, screenY//tiles-10)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles)+5, tilelist[(tiles-1)*s].Y*(screenY//tiles)+5, 100, 15, s, playerColors, False, cardName[s])
     global players
 
 def playerMove(s, forward):
-    if players[s].Position + forward > len(tilelist)-1:
+    if players[s].Position + forward > len(tilelist)-2:
         remainder = players[s].Position + forward - len(tilelist)-1
         players[s].Position = remainder
     players[s].Position += forward
@@ -301,7 +302,8 @@ def fight(player, defender, tile):
     pygame.display.flip()
     screen.fill((0, 0, 0))
     card1 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(player+1) + ".png")), (screenX//3, screenY//3))
-    card2 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(random.randint(1,18)) + ".png")), (screenX//3, screenY//3))
+    # card2 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(random.randint(1,18)) + ".png")), (screenX//3, screenY//3))
+    card2 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(defender+1) + ".png")), (screenX//3, screenY//3))
 
     font = pygame.font.SysFont("Helvetica", 70)
     fight_rect = (0, screenY-(screenY//tiles), screenX, screenY//tiles)
@@ -309,26 +311,50 @@ def fight(player, defender, tile):
 
     if tile:
         versus = "It's Player " + str(players[player].Id) + " VS " + str(tilelist[defender].Owner)
-        left_side = players[player].Color
         right_side = players[tilelist[defender].Owner].Color
     elif not tile:
         versus = "It's Player " + str(players[player].Id) + " VS " + str(players[defender].Id)
-        left_side = players[player].Color
         right_side = players[defender].Color
 
+    left_side = players[player].Color
     left_rect = (0, 0, screenX//2, screenY)
     right_rect = (screenX//2, 0, screenX//2, screenY)
     screen.fill(left_side, left_rect)
     screen.fill(right_side, right_rect)
 
-    fight_text = font.render("Fight till death!", True, (255,255,255))
-    versus_text = font.render(versus, True, (255,255,255))
+    #Draws the options for the cards to pick
+    s = 0
+    for i in range(2):
+        if i == 0:
+            p = player
+        elif tile:
+            p = players[tilelist[defender].Owner].Id
+        else:
+            p = defender
+        for s in range(len(cardAttacks[s])):
+            font = pygame.font.SysFont("Helvetica", 45)
+            cardNameText = "Attack " + str(s+1)
+            name_text = font.render(cardNameText, True, (255,255,255))
+
+            font = pygame.font.SysFont("Helvetica", 14)
+            cardDamageText = "Damage: " + str(cardAttacks[p][s+1])
+            cardStaminaText = "Required Stamina: " + str(cardStamina[p][s+1])
+            damage_text = font.render(cardDamageText, True, (255,255,255))
+            stamina_text = font.render(cardStaminaText, True, (255,255,255))
+
+            choice_rect = (100+(screenX//2)*i+1, (screenY//2)+100*s, screenX//5, 75)
+            choice_button=screen.fill((0,0,0), choice_rect)
+            screen.blit(name_text, (110+(screenX//2)*i+1, (screenY//2)+100*s))
+            screen.blit(damage_text, (120+(screenX//2)*i+1, (screenY//2)+45+100*s))
+            screen.blit(stamina_text, (120+(screenX//2)*i+1, (screenY//2)+60+100*s))
+
+    font = pygame.font.SysFont("Helvetica", 70)
+    versus_text = font.render("VS", True, (255,255,255))
     fight_button=screen.fill((0,0,0), fight_rect)
-    screen.blit(fight_text, (screenX//2-(len("Fight till death")*12), 50))
-    screen.blit(versus_text, (screenX//2-(len("It's player   VS   ")*12), 150))
-    screen.blit(button_fight, (screenX//2-(screenX//(tiles//2)), screenY-(screenY//tiles)))
-    screen.blit(card1, ((screenX//tiles), screenY//3))
-    screen.blit(card2, ((screenX//2+screenX//tiles, screenY//3)))
+    screen.blit(versus_text, (screenX//2-(len("VS")*25), 100))
+    screen.blit(button_fight, (screenX//2-screenX//tiles//2, screenY-(screenY//tiles)))
+    screen.blit(card1, ((screenX//tiles), screenY//tiles))
+    screen.blit(card2, ((screenX//2+screenX//tiles, screenY//tiles)))
 
     pygame.event.get()
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -341,6 +367,25 @@ def fight(player, defender, tile):
         pygame.quit()
     pygame.event.wait()
     fight(player, defender, tile)
+
+def finish(s):
+    black = (0, 0, 0)
+    pygame.display.flip()
+    font = pygame.font.SysFont('Arial',60,True)
+    text = font.render("Game finished", True, (0,255,255))
+    win_play = font.render("Player {0} won" .format(s), True, (0,255,255))
+    exitB_text = font.render("EXIT", True, (255,255,255))
+    exit_rect = (0, screenY//2, screenX, 75)
+    exit_button=screen.fill(black, exit_rect)
+    screen.blit(text,(screenX//2-(len('Game finished')*13), 150))
+    screen.blit(win_play,(screenX//2-(len('Game finished')*13), 280))
+    screen.blit(exitB_text, (screenX//2-(len("EXIT")*4), screenY//2))
+    (b1,b2,b3) = pygame.mouse.get_pressed()
+    mpos = pygame.mouse.get_pos()
+    if exit_button.collidepoint(mpos) and b1==1:
+        pygame.quit()
+    pygame.event.wait()
+    finish(s)
 
 def main():
     pygame.init()      # Prepare the pygame module for use
@@ -359,15 +404,15 @@ def main():
 
     cardName = {0:"Rocky Belboa", 1:"Manny Pecquiao", 2:"Mike Tysen", 3:"Badr Heri"}
 
-    cardAttacks = {0: {1:-10, 2:-20, 3:-30},
-        1: {1:-10, 2:-20, 3:-30},
-        2: {1:-10, 2:-20, 3:-30},
-        3: {1:-10, 2:-20, 3:-30}}
+    cardAttacks = {0: {1:12, 2:18, 3:30},
+        1: {1:8, 2:22, 3:30},
+        2: {1:10, 2:20, 3:30},
+        3: {1:10, 2:18, 3:32}}
 
-    cardStamina = {0: {1:-3, 2:-6, 3:-9},
-        1: {1:-3, 2:-6, 3:-9},
-        2: {1:-3, 2:-6, 3:-9},
-        3: {1:-3, 2:-6, 3:-9}}
+    cardStamina = {0: {1:3, 2:6, 3:9},
+        1: {1:3, 2:6, 3:9},
+        2: {1:3, 2:6, 3:9},
+        3: {1:3, 2:6, 3:9}}
 
     global cardName
     global cardAttacks
@@ -380,13 +425,13 @@ def main():
 
     try:
         pygame.mixer.music.load('music.wav') # Attempts to play music
-        pygame.mixer.music.play(-1, 0.0)
+        # pygame.mixer.music.play(-1, 0.0)
     except:
         pass
 
     tilelist = {"": ""}
     tiles = 11
-    numberOfPlayers = 1
+    numberOfPlayers = 4
     playerN = 0
     forward = 0
     playerColors = {0: (189,33,50), 1: (26,118,186), 2: (15,103,59), 3: (254,220,56)}
@@ -416,8 +461,16 @@ def main():
         dice_button=screen.fill(players[playerN].Color, dice_rect)
         dice_text = font.render(str(forward), True, (255,255,255))
         dice = pygame.transform.scale(pygame.image.load('die.png'), (screenX//tiles, screenY//tiles))
+        font = pygame.font.SysFont("Helvetica", 40)
+        playerStat = font.render('Player: {0}' .format(players[playerN].Name), True, players[playerN].Color)
+        healthStat = font.render('Health: {0}' .format(players[playerN].Health), True, players[playerN].Color)
+        staminaStat = font.render('Stamina: {0}' .format(players[playerN].Stamina), True, players[playerN].Color)
+
         screen.blit(dice_text, (screenX//2+(screenX//tiles//2), screenY//tiles))
         screen.blit(dice, (screenX//2-screenX//tiles,screenY//tiles))
+        screen.blit(playerStat, (screenX//tiles, screenY//tiles+20))
+        screen.blit(healthStat, (screenX//tiles, screenY//tiles+80))
+        screen.blit(staminaStat, (screenX//tiles, screenY//tiles+140))
 
         pygame.event.get()
         (b1,b2,b3) = pygame.mouse.get_pressed()
