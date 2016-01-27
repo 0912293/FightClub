@@ -250,7 +250,7 @@ def newgame():
 
     #text Text, AA , color
     my_font = pygame.font.SysFont("Arial", 70)
-    startB_text = my_font.render('START', True, (255,255,255))
+    startB_text = my_font.render('NEXT', True, (255,255,255))
     pB_text = my_font.render('PLAYERS: {0}' .format(numberOfPlayers), True, (255,255,255))
     returnB_text = my_font.render("RETURN", True, (255,255,255))
 
@@ -265,8 +265,7 @@ def newgame():
     (b1,b2,b3) = pygame.mouse.get_pressed()
     mpos = pygame.mouse.get_pos()
     if start_button.collidepoint(mpos) and b1==1:
-        ng = True
-        return
+        choosecardscreen()
     if p_button.collidepoint(mpos) and b1==1:
         if numberOfPlayers <4:
             numberOfPlayers += 1
@@ -278,8 +277,54 @@ def newgame():
         return
     if pygame.key.get_pressed()[113] == 1:
         pygame.quit()
+    if ng == True:
+        return
     pygame.event.wait()
     newgame()
+
+def choosecardscreen():
+    pygame.display.flip()
+    black = (0, 0, 0)
+    red = (150, 0, 0)
+    screen.fill(red)
+    logotexture = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX, screenY))
+    screen.blit(logotexture, (0,0))
+    global ng
+    global music_playing
+    global numberOfPlayers
+
+    #buttons (x, y, size x, size y)
+    start_rect = (0,50,screenX//2.5, 75)
+    return_rect = (0, 550, screenX//2.5, 75)
+
+    start_button=screen.fill(black, start_rect)
+    return_button=screen.fill(black, return_rect)
+
+    #text Text, AA , color
+    my_font = pygame.font.SysFont("Arial", 70)
+    startB_text = my_font.render('START', True, (255,255,255))
+    returnB_text = my_font.render("RETURN", True, (255,255,255))
+
+    #draw text
+
+    screen.blit(startB_text,(0, 50))
+    screen.blit(returnB_text, (0, 550))
+
+
+    #button actions
+    (b1,b2,b3) = pygame.mouse.get_pressed()
+    mpos = pygame.mouse.get_pos()
+    if start_button.collidepoint(mpos) and b1==1:
+        ng = True
+        return
+    if return_button.collidepoint(mpos) and b1==1:
+        return
+    if pygame.key.get_pressed()[27] == 1:
+        return
+    if pygame.key.get_pressed()[113] == 1:
+        pygame.quit()
+    pygame.event.wait()
+    choosecardscreen()
 
 
 def settings():
