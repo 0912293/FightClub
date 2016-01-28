@@ -283,6 +283,14 @@ def playerMove(s, forward):
             pygame.display.flip()
             break
 
+def music_play(n):                      #-----------------------------------------added
+    music=['music.wav','sound_effects/fight_bell.wav','sound_effects/button2.mp3']
+    pygame.mixer.music.load(music[n])
+    if n == 0:
+        pygame.mixer.music.play(-1, 0.0)
+    else:
+        pygame.mixer.music.play(0, 0.0)
+                                        #------------------------------------------end
 def turn(player):
     forward = random.randint(1,6)
     global playerN
@@ -299,21 +307,17 @@ def turn(player):
 def checkFight(player):
     for s in range(len(players)-1):
         if (players[player].Position == players[s].Position and players[player].Id != players[s].Id):
-            pygame.mixer.music.load('sound_effects/fight_bell.wav') # Attempts to play music
-            pygame.mixer.music.play(0, 0.0)
+            music_play(1)           #---------------------------------------------------------------------------------changed
             fight(player, s, False)
-            pygame.mixer.music.load('music.wav') # Attempts to play music
-            pygame.mixer.music.play(-1, 0.0)
+            music_play(0)
     for s in range(len(tilelist)-1):
         if players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player == tilelist[s].Owner:
             players[player].Stamina = 15
             break
         if players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner:
-            pygame.mixer.music.load('sound_effects/fight_bell.wav') # Attempts to play music
-            pygame.mixer.music.play(0, 0.0)
+            music_play(1)
             fight(player, s, True)
-            pygame.mixer.music.load('music.wav') # Attempts to play music
-            pygame.mixer.music.play(-1, 0.0)
+            music_play(0)           #---------------------------------------------------------------------------------end
 
 def fight(player, defender, tile):
     pygame.display.flip()
@@ -383,8 +387,7 @@ def fight(player, defender, tile):
         for s in range(len(cardAttacks[s])):
             if choice_button[i+1][s].collidepoint(mpos) and b1 == 1:
                 pickedCards[i+1] = s+1
-                pygame.mixer.music.load('sound_effects/button2.mp3')
-                pygame.mixer.music.play(0, 0.0)
+                music_play(2)                   #---------------------------------------------------------------------------------added line
     # print(tile)
     if pickedCards[1] != -1 and pickedCards[2] != -1 and tile:
         fightResult(player, players[tilelist[defender].Owner].Id, pickedCards[1], pickedCards[2], tile)
@@ -493,8 +496,7 @@ def main():
     pygame.mixer.init(44100, -16,2,2048)
 
     try:
-        pygame.mixer.music.load('music.wav') # Attempts to play music
-        pygame.mixer.music.play(-1, 0.0)
+        music_play(0)               #---------------------------------------------------------------------------------added line
     except:
         pass
 
