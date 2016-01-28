@@ -132,12 +132,22 @@ def createList(s, i, j):
 
 def menu():
     pygame.display.flip()
-    black = (0, 0, 0, 0)
-    red = (150, 0, 0)
-    data1 = []
-    screen.fill(red)
-    logotexture = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX, screenY))
-    screen.blit(logotexture, (0,0))
+    black = (0, 0, 0)
+    white = (255, 255, 255)
+    global bCurrentImage
+
+    clock = pygame.time.Clock()
+
+    animationImg = pygame.transform.scale(pygame.image.load(os.path.join("anime", "an" + str(bCurrentImage) + ".png")), (screenX, screenY))
+    screen.blit(animationImg, (0,0))
+    if bCurrentImage < 9:
+        bCurrentImage += 1
+    else:
+        bCurrentImage = 1
+
+    pygame.display.flip()
+    clock.tick(15)
+
 
     #buttons (x, y, size x, size y)
     start_rect = (0, 50, screenX//2.5, 75)
@@ -485,6 +495,7 @@ def main():
     playerColors = {0: (189,33,50), 1: (26,118,186), 2: (15,103,59), 3: (254,220,56)}
     pickedCards = {1: -1, 2: -1}
     activePlayers = numberOfPlayers
+    bCurrentImage = 1
     global tilelist
     global tiles
     global numberOfPlayers
@@ -493,7 +504,9 @@ def main():
     global playerColors
     global pickedCards
     global activePlayers
+    global bCurrentImage
 
+    global screen
     createList(0,0,0)
     playerCreate()
     menu()
