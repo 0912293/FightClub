@@ -568,7 +568,7 @@ def superFight(player):
 
 def fight(player, defender, tile):
     pygame.display.flip()
-    # screen.fill((0, 0, 0))
+    screen.fill((0, 0, 0))
     card1 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(player+1) + ".png")), (screenX//3, screenY//3))
     print(tilelist[defender].Type)
     global pickedCards
@@ -586,8 +586,8 @@ def fight(player, defender, tile):
     left_side = players[player].Color
     left_rect = (0, 0, screenX//2, screenY)
     right_rect = (screenX//2, 0, screenX//2, screenY)
-    # screen.fill(left_side, left_rect)
-    # screen.fill(right_side, right_rect)
+    screen.fill(left_side, left_rect)
+    screen.fill(right_side, right_rect)
 
     #Draws the options for the cards to pick
     s = 0
