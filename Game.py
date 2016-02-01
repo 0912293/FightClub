@@ -258,6 +258,14 @@ def menu():
     pygame.event.wait()
     return menu()
 
+def music_play(n):
+    music=['music.wav','sound_effects/fight_bell.wav','sound_effects/button2.wav']
+    pygame.mixer.music.load(music[n])
+    if n == 0:
+        pygame.mixer.music.play(-1, 0.0)
+    else:
+        pygame.mixer.music.play(0, 0.0)
+
 def newGame():
     ng = False
     pygame.display.flip()
@@ -391,7 +399,7 @@ def settings():
 
     #text Text, AA , color
     my_font = pygame.font.SysFont("Arial", 70)
-    muteB_text = my_font.render('MUTE', True, (255,255,255))
+    muteB_text = my_font.render('MUTE MUSIC', True, (255,255,255))
     returnB_text = my_font.render("RETURN", True, (255,255,255))
 
     #draw text
@@ -473,18 +481,24 @@ def checkFight(player):
         dicelist = [dice1, random.randint(1,6)]
         if players[player].Position == tilelist[s].Id and tilelist[s].Type == "superfight":
             diceRoll(player, -1, -1, -1, False)
+            music_play(1)
             superFight(player, random.randint(1,17), dice1)
+            music_play(0)
         elif players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player == tilelist[s].Owner:
             players[player].Stamina = 15
             break
         elif players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner:
+            music_play(1)
             diceRoll(player, s, -1, -1, True)
             fight(player, s, True, dicelist)
+            music_play(0)
         else:
             for s in range(len(players)-1):
                 if (players[player].Position == players[s].Position and players[player].Id != players[s].Id):
+                    music_play(1)
                     diceRoll(player, s, -1, -1, False)
                     fight(player, s, False, dicelist)
+                    music_play(0)
 
 def diceRoll(attacker, defender, dice1, dice2, tile):
     pygame.display.flip()
@@ -502,13 +516,17 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
         right_rect = (screenX//2, 0, screenX//2, screenY)
         screen.fill(left_side, left_rect)
         screen.fill(right_side, right_rect)
-        dice2_rect = Rect(screenX//3*2, screenY//tiles*2, screenX//tiles, screenY//tiles)
+        dice2_rect = Rect(screenX//4*3, screenY//2, screenX//tiles, screenY//tiles)
         dice_button2 = screen.fill(right_side, dice2_rect)
-        screen.blit(dice, (screenX//3*2,screenY//tiles*2))
+        screen.blit(dice, (screenX//4*3,screenY//2))
 
-    dice1_rect = Rect(screenX//3, screenY//tiles*2, screenX//tiles, screenY//tiles)
+    font = pygame.font.SysFont("Helvetica", 70)
+    rolldice_text = font.render("Roll the dice!", True, (255,255,255))
+    dice1_rect = Rect(screenX//4, screenY//2, screenX//tiles, screenY//tiles)
     dice_button1 = screen.fill(players[attacker].Color, dice1_rect)
-    screen.blit(dice, (screenX//3,screenY//tiles*2))
+    screen.blit(dice, (screenX//4,screenY//2))
+    screen.blit(rolldice_text, (screenX//3, screenY//tiles))
+
     pygame.event.get()
     (b1,b2,b3) = pygame.mouse.get_pressed()
     mpos = pygame.mouse.get_pos()
@@ -520,6 +538,10 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
             return
     if dice1 != -1 and dice2 != -1:
         return
+    if pygame.key.get_pressed()[27] == 1:
+        menu()
+    if pygame.key.get_pressed()[113] == 1:
+        pygame.quit()
     pygame.event.wait()
     diceRoll(attacker, defender, dice1, dice2, tile)
 
@@ -568,6 +590,7 @@ def superFight(player, superfighter, dice):
     for s in range(len(cardAttacks[s])):
         if choice_button[1][s].collidepoint(mpos) and b1 == 1:
             pickedSFCard = s+1
+            music_play(2)
 
     if pickedSFCard != -1:
         superFightResult(player, superfighter, pickedSFCard, dice)
@@ -612,6 +635,10 @@ def fight(player, defender, tile, dicelist):
         else:
             p = defender
         for s in range(len(cardAttacks[s])):
+            if pickedCards[i+1] == s+1:
+                cardcolor = (100, 0, 0)
+            else:
+                cardcolor = (0, 0, 0)
             font = pygame.font.SysFont("Helvetica", 45)
             cardNameText = "Attack " + str(s+1)
             name_text = font.render(cardNameText, True, (255,255,255))
@@ -622,7 +649,7 @@ def fight(player, defender, tile, dicelist):
             damage_text = font.render(cardDamageText, True, (255,255,255))
             stamina_text = font.render(cardStaminaText, True, (255,255,255))
             choice_rect = Rect(100+(screenX//2)*i+1, (screenY//2)+100*s, screenX//5, 75)
-            choice_button[i+1].append(screen.fill((0,0,0), choice_rect))
+            choice_button[i+1].append(screen.fill(cardcolor, choice_rect))
 
             screen.blit(name_text, (110+(screenX//2)*i+1, (screenY//2)+100*s))
             screen.blit(damage_text, (120+(screenX//2)*i+1, (screenY//2)+45+100*s))
@@ -641,6 +668,8 @@ def fight(player, defender, tile, dicelist):
         for s in range(len(cardAttacks[s])):
             if choice_button[i+1][s].collidepoint(mpos) and b1 == 1:
                 pickedCards[i+1] = s+1
+                music_play(2)
+
     if pickedCards[1] != -1 and pickedCards[2] != -1 and tile:
         fightResult(player, players[tilelist[defender].Owner].Id, pickedCards[1], pickedCards[2], tile, dicelist)
         return
@@ -760,8 +789,7 @@ def main():
     pygame.mixer.init(44100, -16,2,2048)
 
     try:
-        pygame.mixer.music.load('music.wav') # Attempts to play music
-        pygame.mixer.music.play(-1, 0.0)
+        music_play(0)
     except:
         pass
 
