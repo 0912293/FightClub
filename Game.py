@@ -274,6 +274,16 @@ def newGame():
     screen.fill(red)
     logotexture = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX, screenY))
     screen.blit(logotexture, (0,0))
+    playerToPickCard = 0
+    x = True
+    y = True
+    i = True
+    j = True
+    global playerToPickCard
+    global x
+    global y
+    global i
+    global j
     global ng
     global music_playing
     global numberOfPlayers
@@ -319,6 +329,8 @@ def newGame():
     (b1,b2,b3) = pygame.mouse.get_pressed()
     mpos = pygame.mouse.get_pos()
     if start_button.collidepoint(mpos) and b1==1:
+        createList(0,0,0)
+        playerCreate()
         chooseCardScreen()
     if p_button.collidepoint(mpos) and b1==1:
         if numberOfPlayers <4:
@@ -343,6 +355,17 @@ def chooseCardScreen():
     screen.fill(red)
     logotexture = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX, screenY))
     screen.blit(logotexture, (0,0))
+    bCurrentImage = 1
+    pygame.image.load(os.path.join("player_cards", "p" +str(bCurrentImage) + ".png"))
+    if bCurrentImage < 4:
+        bCurrentImage += 1
+    else:
+        bCurrentImage =1
+    global playerToPickCard
+    global x
+    global y
+    global i
+    global j
     global ng
     global music_playing
     global numberOfPlayers
@@ -350,23 +373,70 @@ def chooseCardScreen():
     #buttons (x, y, size x, size y)
     start_button = Rect(0,50,screenX//2.5, 75)
     return_button = Rect(0, 550, screenX//2.5, 75)
+    img1_button = pygame.draw.rect(screen, black, [400,250,300,200])
+    img2_button = pygame.draw.rect(screen, black, [800,250,300,200])
+    img3_button = pygame.draw.rect(screen, black, [400,500,300,200])
+    img4_button = pygame.draw.rect(screen, black, [800,500,300,200])
 
     #text Text, AA , color
     my_font = pygame.font.SysFont("Arial", 70)
     startB_text = my_font.render('START', True, (255,255,255))
     returnB_text = my_font.render("RETURN", True, (255,255,255))
+    chooseC_text = my_font.render('Choose your character', True, (255,255,255))
+
+    for s in range(4):
+        print(s, numberOfPlayers)
+        pB_text = my_font.render('PLAYER: {0}' .format(playerToPickCard+1), True, (255,255,255))
+        cardsImage = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(s+1) + ".png")),(300,200))
+        if s == 0:
+            screen.blit(cardsImage, (400, 250))
+        if s == 1:
+            screen.blit(cardsImage, (800, 250))
+        if s == 2:
+            screen.blit(cardsImage, (400, 500))
+        if s == 3:
+            screen.blit(cardsImage, (800, 500))
+
+        #button actions
+        pygame.event.get()
+        (b1,b2,b3) = pygame.mouse.get_pressed()
+        mpos = pygame.mouse.get_pos()
+        if img1_button.collidepoint(mpos) and b1==1 and x is True:
+            players[playerToPickCard].Card = 1
+            playerToPickCard += 1
+            x = False
+        if img2_button.collidepoint(mpos) and b1==1 and y is True:
+            players[playerToPickCard].Card = 2
+            playerToPickCard += 1
+            y = False
+        if img3_button.collidepoint(mpos) and b1==1 and i is True:
+            players[playerToPickCard].Card = 3
+            playerToPickCard += 1
+            i = False
+        if img4_button.collidepoint(mpos) and b1==1 and j is True:
+            players[playerToPickCard].Card = 4
+            playerToPickCard += 1
+            j = False
+        if playerToPickCard >= numberOfPlayers:
+            ng = True
+            return
 
     #draw text
+    screen.blit(chooseC_text, (450, 50))
+    screen.blit(pB_text, (450, 150))
     screen.blit(startB_text,(0, 50))
     screen.blit(returnB_text, (0, 550))
 
-    #button actions
-    (b1,b2,b3) = pygame.mouse.get_pressed()
-    mpos = pygame.mouse.get_pos()
+    if x == False:
+        pygame.draw.rect(screen, black, [400,250,300,200])
+    if y == False:
+        pygame.draw.rect(screen, black, [800,250,300,200])
+    if i == False:
+        pygame.draw.rect(screen, black, [400,500,300,200])
+    if j == False:
+        pygame.draw.rect(screen, black, [800,500,300,200])
     if start_button.collidepoint(mpos) and b1==1:
         ng = True
-        createList(0,0,0)
-        playerCreate()
         return
     if return_button.collidepoint(mpos) and b1==1:
         return
