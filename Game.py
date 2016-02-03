@@ -24,8 +24,11 @@ def createBoard():
     red = (120, 20, 0)
     center = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX-(screenX//tiles*2), screenY-(screenY//tiles*2)-2))
     screen.blit(center, (screenX//tiles, screenY//tiles))
+    global numberOfBoardRefreshes
     for i in range(tiles):
         for j in range(tiles):
+            if numberOfBoardRefreshes == -1:
+                pygame.display.flip()
             tile = (screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles)
             if i == 0 or j == 0 or i == tiles-1 or j == tiles-1:
                 if (i == 0 and j == 0) or (i == 0 and j == 1) or (i == 1 and j == 0):
@@ -57,6 +60,8 @@ def createBoard():
                     screen.blit(superfightImg, tile)
                 else:
                     pygame.draw.rect(screen, grey,tile, 10)
+    numberOfBoardRefreshes += 1
+    print("Board has been resfreshed ", numberOfBoardRefreshes, "times.")
 
 def createList(s, i, j):
     maxtile = tiles-1
@@ -157,19 +162,19 @@ def menu():
 
     my_font = pygame.font.SysFont("Arial", 70)
     if ng:
-        start_button = Rect(0, 150, screenX//2.5, 75)
-        startB_text = my_font.render('RESUME GAME', True, (255,255,255))
-        screen.blit(startB_text,(0, 150))
+        start_button = Rect(0, 150, screenX//2, 75)
+        startB_img = pygame.transform.scale(pygame.image.load('b_resumesavedgame.png'), (screenX//2, 75))
+        screen.blit(startB_img,(0, 150))
 
     if os.path.isfile("savefile"):
         load_button = Rect(0, 450, screenX//2.5, 75)
-        loadB_text = my_font.render('LOAD SAVE', True, (255,255,255))
-        screen.blit(loadB_text,(0, 450))
+        loadB_img = pygame.transform.scale(pygame.image.load('b_load.png'), (screenX//6, 75))
+        screen.blit(loadB_img,(0, 450))
 
     if ingame:
         save_button = Rect(0, 350, screenX//2.5, 75)
-        saveB_text = my_font.render('SAVE GAME', True, (255,255,255))
-        screen.blit(saveB_text,(0, 350))
+        saveB_img = pygame.transform.scale(pygame.image.load('b_save.png'), (screenX//6, 75))
+        screen.blit(saveB_img,(0, 350))
 
     #buttons (x, y, size x, size y)
     new_button = Rect(0, 50, screenX//2.5, 75)
@@ -177,17 +182,17 @@ def menu():
     settings_button = Rect(0, 550, screenX//2.5, 75)
     exit_button = Rect(0, 650, screenX//2.5, 75)
 
-    #text Text, AA , color
-    newB_text = my_font.render('NEW GAME', True, (255,255,255))
-    instructB_text = my_font.render('INSTRUCTIONS', True, (255,255,255))
-    settingsB_text = my_font.render('SETTINGS', True, (255,255,255))
-    exitB_text = my_font.render("EXIT", True, (255,255,255))
+    #images
+    newgameB_img = pygame.transform.scale(pygame.image.load('b_newgame.png'), (screenX//3, 75))
+    manualB_img = pygame.transform.scale(pygame.image.load('b_manual.png'), (screenX//4, 75))
+    settingsB_img = pygame.transform.scale(pygame.image.load('b_settings.png'), (screenX//4, 75))
+    exitB_img = pygame.transform.scale(pygame.image.load('b_exit.png'), (screenX//6, 75))
     
-    #draw text
-    screen.blit(newB_text,(0, 50))
-    screen.blit(instructB_text,(0, 250))
-    screen.blit(settingsB_text,(0,550))
-    screen.blit(exitB_text, (0, 650))
+    #draw images
+    screen.blit(newgameB_img,(0, 50))
+    screen.blit(manualB_img,(0, 250))
+    screen.blit(settingsB_img,(0,535))
+    screen.blit(exitB_img, (0, 620))
 
     #button actions
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -259,7 +264,7 @@ def menu():
     return menu()
 
 def music_play(n):
-    music=['music.wav','sound_effects/fight_bell.wav','sound_effects/button2.wav']
+    music=['music3.wav','sound_effects/fight_bell.wav','sound_effects/button2.wav']
     pygame.mixer.music.load(music[n])
     if n == 0:
         pygame.mixer.music.play(-1, 0.0)
@@ -295,14 +300,14 @@ def newGame():
 
     #text Text, AA , color
     my_font = pygame.font.SysFont("Arial", 70)
-    startB_text = my_font.render('NEXT', True, (255,255,255))
-    pB_text = my_font.render('PLAYERS: {0}' .format(numberOfPlayers), True, (255,255,255))
-    returnB_text = my_font.render("RETURN", True, (255,255,255))
+    startB_img = pygame.transform.scale(pygame.image.load('b_start.png'), (screenX//5, 75))
+    pB_img = pygame.transform.scale(pygame.image.load('b_players' + str(numberOfPlayers) + ".png"), (screenX//3, 75))
+    returnB_img = pygame.transform.scale(pygame.image.load('b_return.png'), (screenX//4, 75))
 
     #draw text
-    screen.blit(startB_text,(screenX - screenX//2.5, 50))
-    screen.blit(pB_text,(screenX - screenX//2.5, 150))
-    screen.blit(returnB_text, (screenX - screenX//2.5, 550))
+    screen.blit(startB_img,(screenX - screenX//2.5, 50))
+    screen.blit(pB_img,(screenX - screenX//2.5, 150))
+    screen.blit(returnB_img, (screenX - screenX//2.5, 550))
 
     my_font = pygame.font.SysFont("Arial", 40)
     cpuText = my_font.render("Computer Players:", True, (255, 255, 255))
@@ -373,68 +378,70 @@ def chooseCardScreen():
     #buttons (x, y, size x, size y)
     start_button = Rect(0,50,screenX//2.5, 75)
     return_button = Rect(0, 550, screenX//2.5, 75)
-    img1_button = pygame.draw.rect(screen, black, [400,250,300,200])
-    img2_button = pygame.draw.rect(screen, black, [800,250,300,200])
-    img3_button = pygame.draw.rect(screen, black, [400,500,300,200])
-    img4_button = pygame.draw.rect(screen, black, [800,500,300,200])
+    if x:
+        img1_button = pygame.draw.rect(screen, black, [400,250,300,200])
+    if y:
+        img2_button = pygame.draw.rect(screen, black, [800,250,300,200])
+    if i:
+        img3_button = pygame.draw.rect(screen, black, [400,500,300,200])
+    if j:
+        img4_button = pygame.draw.rect(screen, black, [800,500,300,200])
 
     #text Text, AA , color
     my_font = pygame.font.SysFont("Arial", 70)
-    startB_text = my_font.render('START', True, (255,255,255))
-    returnB_text = my_font.render("RETURN", True, (255,255,255))
+    startB_img = pygame.transform.scale(pygame.image.load('b_start.png'), (screenX//5, 75))
+    returnB_img = pygame.transform.scale(pygame.image.load('b_return.png'), (screenX//4, 75))
     chooseC_text = my_font.render('Choose your character', True, (255,255,255))
 
     for s in range(4):
         print(s, numberOfPlayers)
         pB_text = my_font.render('PLAYER: {0}' .format(playerToPickCard+1), True, (255,255,255))
         cardsImage = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(s+1) + ".png")),(300,200))
-        if s == 0:
+        if s == 0 and x:
             screen.blit(cardsImage, (400, 250))
-        if s == 1:
+        if s == 1 and y:
             screen.blit(cardsImage, (800, 250))
-        if s == 2:
+        if s == 2 and i:
             screen.blit(cardsImage, (400, 500))
-        if s == 3:
+        if s == 3 and j:
             screen.blit(cardsImage, (800, 500))
 
         #button actions
         pygame.event.get()
         (b1,b2,b3) = pygame.mouse.get_pressed()
         mpos = pygame.mouse.get_pos()
-        if img1_button.collidepoint(mpos) and b1==1 and x is True:
+        if x and img1_button.collidepoint(mpos) and b1==1:
             players[playerToPickCard].Card = 1
+            players[playerToPickCard].Name = cardName[0]
             playerToPickCard += 1
             x = False
-        if img2_button.collidepoint(mpos) and b1==1 and y is True:
+        if y and img2_button.collidepoint(mpos) and b1==1:
             players[playerToPickCard].Card = 2
+            players[playerToPickCard].Name = cardName[1]
             playerToPickCard += 1
             y = False
-        if img3_button.collidepoint(mpos) and b1==1 and i is True:
+        if i and img3_button.collidepoint(mpos) and b1==1:
             players[playerToPickCard].Card = 3
+            players[playerToPickCard].Name = cardName[2]
             playerToPickCard += 1
             i = False
-        if img4_button.collidepoint(mpos) and b1==1 and j is True:
+        if j and img4_button.collidepoint(mpos) and b1==1:
             players[playerToPickCard].Card = 4
+            players[playerToPickCard].Name = cardName[3]
             playerToPickCard += 1
             j = False
+        global players
         if playerToPickCard >= numberOfPlayers:
             ng = True
+            global players
             return
 
     #draw text
     screen.blit(chooseC_text, (450, 50))
     screen.blit(pB_text, (450, 150))
-    screen.blit(startB_text,(0, 50))
-    screen.blit(returnB_text, (0, 550))
+    screen.blit(startB_img,(0, 50))
+    screen.blit(returnB_img, (0, 550))
 
-    if x == False:
-        pygame.draw.rect(screen, black, [400,250,300,200])
-    if y == False:
-        pygame.draw.rect(screen, black, [800,250,300,200])
-    if i == False:
-        pygame.draw.rect(screen, black, [400,500,300,200])
-    if j == False:
-        pygame.draw.rect(screen, black, [800,500,300,200])
     if start_button.collidepoint(mpos) and b1==1:
         ng = True
         return
@@ -457,11 +464,8 @@ def instructions():
 
     return_rect = (0, screenY-100, screenX, 75)
     return_button=screen.fill(black, return_rect)
-    #text Text, AA , color
-    font = pygame.font.SysFont("Arial", 70)
-    return_text = font.render('RETURN', True, (255,255,255))
-    #draw text
-    screen.blit(return_text, (screenX//2-(len("RETURN")*20), screenY-75))
+    return_img = pygame.transform.scale(pygame.image.load('b_return.png'), (screenX//4, 75))
+    screen.blit(return_img, (screenX//2-(len("RETURN")*20), screenY-75))
 
     #button actions
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -476,7 +480,6 @@ def instructions():
     instructions()
 
 def settings():
-    pygame.display.flip()
     black = (0, 0, 0)
     red = (150, 0, 0)
     screen.fill(red)
@@ -488,14 +491,16 @@ def settings():
     mute_button = Rect(screenX-screenX//2.5, 50,screenX//2.5, 75)
     return_button = Rect(screenX-screenX//2.5, 550, screenX//2.5, 75)
 
-    #text Text, AA , color
-    my_font = pygame.font.SysFont("Arial", 70)
-    muteB_text = my_font.render('MUTE MUSIC', True, (255,255,255))
-    returnB_text = my_font.render("RETURN", True, (255,255,255))
+    if music_playing:
+        muteB_img = pygame.transform.scale(pygame.image.load('b_unmute.png'), (screenX//12, 75))
+    else:
+        muteB_img = pygame.transform.scale(pygame.image.load('b_mute.png'), (screenX//12, 75))
+    returnB_img = pygame.transform.scale(pygame.image.load('b_return.png'), (screenX//4, 75))
 
     #draw text
-    screen.blit(muteB_text,(screenX-screenX//2.5, 50))
-    screen.blit(returnB_text, (screenX-screenX//2.5, 550))
+    screen.blit(muteB_img,(screenX-screenX//2.5, 50))
+    screen.blit(returnB_img, (screenX-screenX//2.5, 550))
+    pygame.display.flip()
 
     #button actions
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -567,6 +572,8 @@ def turn(player):
         playerN += 1
 
 def checkFight(player):
+    for s in range(4):
+            print("Player:", s, "with card", players[s].Card)
     for s in range(len(tilelist)-1):
         dice1 = random.randint(1,6)
         dicelist = [dice1, random.randint(1,6)]
@@ -595,7 +602,6 @@ def checkFight(player):
                     return
 
 def diceRoll(attacker, defender, dice1, dice2, tile):
-    pygame.display.flip()
     if defender < 0:
         background = players[attacker].Color
         background_rect = (0, 0, screenX, screenY)
@@ -621,6 +627,7 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
     dice_button1 = screen.fill(players[attacker].Color, dice1_rect)
     screen.blit(dice, (screenX//4,screenY//2))
     screen.blit(rolldice_text, (screenX//3, screenY//tiles))
+    pygame.display.flip()
 
     if dice1 == -1:
         if attacker in computerPlayers:
@@ -654,9 +661,11 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
     diceRoll(attacker, defender, dice1, dice2, tile)
 
 def superFight(player, superfighter, dice):
-    pygame.display.flip()
     screen.fill((0,0,0))
-    card1 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(player+1) + ".png")), (screenX//3, screenY//3))
+    global players
+    for s in range(4):
+        print("Player:", s, "with card", players[s].Card)
+    card1 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(players[player].Card) + ".png")), (screenX//3, screenY//3))
     card2 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(superfighter) + ".png")), (screenX//3, screenY//3))
     pickedSFCard = -1
     global pickedSFCard
@@ -691,6 +700,7 @@ def superFight(player, superfighter, dice):
     screen.blit(versus_text, (screenX//2-(len("VS")*25), 100))
     screen.blit(card1, ((screenX//tiles), screenY//tiles))
     screen.blit(card2, ((screenX//2+screenX//tiles, screenY//tiles)))
+    pygame.display.flip()
 
     pygame.event.get()
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -716,9 +726,8 @@ def superFight(player, superfighter, dice):
 
 def fight(player, defender, tile, dicelist):
     print(defender)
-    pygame.display.flip()
     screen.fill((0, 0, 0))
-    card1 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(player+1) + ".png")), (screenX//3, screenY//3))
+    card1 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(players[player].Card) + ".png")), (screenX//3, screenY//3))
     global pickedCards
     font = pygame.font.SysFont("Helvetica", 70)
 
@@ -773,6 +782,7 @@ def fight(player, defender, tile, dicelist):
     screen.blit(versus_text, (screenX//2-(len("VS")*25), 100))
     screen.blit(card1, ((screenX//tiles), screenY//tiles))
     screen.blit(card2, ((screenX//2+screenX//tiles, screenY//tiles)))
+    pygame.display.flip()
 
     pygame.event.get()
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -930,7 +940,8 @@ def main():
     music_playing = True
     ng = False
     ingame = False
-    computerPlayers = [0,1,2,3]
+    computerPlayers = []
+    numberOfBoardRefreshes = 0
 
     global tilelist
     global tiles
@@ -946,11 +957,12 @@ def main():
     global ng
     global ingame
     global computerPlayers
+    global numberOfBoardRefreshes
 
     global screen
     menu()
-    createList(0,0,0)
-    playerCreate()
+    # createList(0,0,0)
+    # playerCreate()
     ingame = True
 
     while True:
