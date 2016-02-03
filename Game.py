@@ -279,7 +279,7 @@ def newGame():
     global numberOfPlayers
 
     #buttons (x, y, size x, size y)
-    start_button = Rect(screenX - screenX//2.5,50,screenX//2.5, 75)
+    start_button = Rect(screenX - screenX//2.5, 50, screenX//2.5, 75)
     p_button = Rect(screenX - screenX//2.5, 150, screenX//2.5, 75)
     return_button = Rect(screenX - screenX//2.5, 550, screenX//2.5, 75)
 
@@ -293,6 +293,27 @@ def newGame():
     screen.blit(startB_text,(screenX - screenX//2.5, 50))
     screen.blit(pB_text,(screenX - screenX//2.5, 150))
     screen.blit(returnB_text, (screenX - screenX//2.5, 550))
+
+    my_font = pygame.font.SysFont("Arial", 40)
+    cpuText = my_font.render("Computer Players:", True, (255, 255, 255))
+
+    screen.blit(cpuText, (20, screenY-(screenY//tiles)))
+    for s in range(numberOfPlayers):
+        cpuButton = Rect((screenX//tiles+50)*s+400, screenY-(screenY//tiles), 165, 75)
+        cpuButtonText = my_font.render("Player {0}" .format(s+1), True, (255, 255, 255))
+        if s in computerPlayers:
+            screen.fill((200,0,0), cpuButton)
+        else:
+            screen.fill((0,0,0), cpuButton)
+        screen.blit(cpuButtonText,((screenX//tiles+50)*s+400, screenY-(screenY//tiles)))
+
+        (b1,b2,b3) = pygame.mouse.get_pressed()
+        mpos = pygame.mouse.get_pos()
+        if cpuButton.collidepoint(mpos) and b1==1:
+            if s in computerPlayers:
+                computerPlayers.remove(s)
+            else:
+                computerPlayers.append(s)
 
     #button actions
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -370,7 +391,7 @@ def instructions():
     font = pygame.font.SysFont("Arial", 70)
     return_text = font.render('RETURN', True, (255,255,255))
     #draw text
-    screen.blit(return_text, (screenX//2-(len("RETURN")*20), screenY-100))
+    screen.blit(return_text, (screenX//2-(len("RETURN")*20), screenY-75))
 
     #button actions
     (b1,b2,b3) = pygame.mouse.get_pressed()
@@ -445,14 +466,14 @@ class Player():
 def playerCreate():
     players = {"":""}
     for s in range(0, numberOfPlayers):
-        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawns", "pawn" + str(s+1) + "-8bit.png")), (screenX//tiles-10, screenY//tiles-10)), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles)+5, tilelist[(tiles-1)*s].Y*(screenY//tiles)+5, 100, 15, s, playerColors, False, cardName[s])
+        players[s] = Player(s, pygame.transform.scale(pygame.image.load(os.path.join("pawns", "pawn" + str(s+1) + "-8bit.png")), (screenX//tiles-10, screenY//tiles-10)).convert_alpha(), tilelist[(tiles-1)*s].Id, tilelist[(tiles-1)*s].X*(screenX//tiles)+5, tilelist[(tiles-1)*s].Y*(screenY//tiles)+5, 100, 15, -1, playerColors, False, cardName[s])
     global players
 
 def playerMove(s, forward):
     if players[s].Position + forward > len(tilelist)-2:
         remainder = players[s].Position + forward - len(tilelist)-1
         players[s].Position = remainder
-    players[s].Position += forward
+    players[s].Position += 1
     for i in range(len(tilelist)-1):
         if tilelist[i].Id == players[s].Position:
             players[s].X = tilelist[i].X*(screenX//tiles)+5
@@ -484,14 +505,16 @@ def checkFight(player):
             music_play(1)
             superFight(player, random.randint(1,17), dice1)
             music_play(0)
+            return
         elif players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player == tilelist[s].Owner:
             players[player].Stamina = 15
             break
-        elif players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner:
+        elif players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner and not players[tilelist[s].Owner].Removed:
             music_play(1)
             diceRoll(player, s, -1, -1, True)
             fight(player, s, True, dicelist)
             music_play(0)
+            return
         else:
             for s in range(len(players)-1):
                 if (players[player].Position == players[s].Position and players[player].Id != players[s].Id):
@@ -499,6 +522,7 @@ def checkFight(player):
                     diceRoll(player, s, -1, -1, False)
                     fight(player, s, False, dicelist)
                     music_play(0)
+                    return
 
 def diceRoll(attacker, defender, dice1, dice2, tile):
     pygame.display.flip()
@@ -510,6 +534,7 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
         left_side = players[attacker].Color
         left_rect = (0, 0, screenX//2, screenY)
         if tile:
+            print(defender)
             right_side = players[tilelist[defender].Owner].Color
         else:
             right_side = players[defender].Color
@@ -527,14 +552,27 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
     screen.blit(dice, (screenX//4,screenY//2))
     screen.blit(rolldice_text, (screenX//3, screenY//tiles))
 
+    if dice1 == -1:
+        if attacker in computerPlayers:
+            dice1 = random.randint(1,6)
+            if dice2 != -1 or defender <= 0:
+                return
+    if dice2 == -1:
+        if tile:
+            defender = tilelist[defender].Owner
+        if defender in computerPlayers:
+            dice2 = random.randint(1,6)
+            if dice1 != -1:
+                return
+
     pygame.event.get()
     (b1,b2,b3) = pygame.mouse.get_pressed()
     mpos = pygame.mouse.get_pos()
-    if defender > 0 and dice_button2.collidepoint(mpos) and b1 == 1:
+    if defender >= 0 and dice_button2.collidepoint(mpos) and b1 == 1:
         dice2 = random.randint(1,6)
     if dice_button1.collidepoint(mpos) and b1 == 1:
         dice1 = random.randint(1,6)
-        if defender < 0:
+        if defender <= 0:
             return
     if dice1 != -1 and dice2 != -1:
         return
@@ -587,10 +625,14 @@ def superFight(player, superfighter, dice):
     pygame.event.get()
     (b1,b2,b3) = pygame.mouse.get_pressed()
     mpos = pygame.mouse.get_pos()
-    for s in range(len(cardAttacks[s])):
-        if choice_button[1][s].collidepoint(mpos) and b1 == 1:
-            pickedSFCard = s+1
-            music_play(2)
+    if player in computerPlayers:
+        pickedSFCard = random.randint(1,3)
+        music_play(2)
+    else:
+        for s in range(len(cardAttacks[s])):
+            if choice_button[1][s].collidepoint(mpos) and b1 == 1:
+                pickedSFCard = s+1
+                music_play(2)
 
     if pickedSFCard != -1:
         superFightResult(player, superfighter, pickedSFCard, dice)
@@ -603,6 +645,7 @@ def superFight(player, superfighter, dice):
     superFight(player, superfighter, dice)
 
 def fight(player, defender, tile, dicelist):
+    print(defender)
     pygame.display.flip()
     screen.fill((0, 0, 0))
     card1 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(player+1) + ".png")), (screenX//3, screenY//3))
@@ -665,10 +708,21 @@ def fight(player, defender, tile, dicelist):
     (b1,b2,b3) = pygame.mouse.get_pressed()
     mpos = pygame.mouse.get_pos()
     for i in range(2):
-        for s in range(len(cardAttacks[s])):
-            if choice_button[i+1][s].collidepoint(mpos) and b1 == 1:
-                pickedCards[i+1] = s+1
-                music_play(2)
+        if tile:
+            defender2 = tilelist[defender].Owner
+        else:
+            defender2 = defender
+        if i == 0 and player in computerPlayers:
+            pickedCards[i+1] = random.randint(1,3)
+            music_play(2)
+        elif i == 1 and defender2 in computerPlayers:
+            pickedCards[i+1] = random.randint(1,3)
+            music_play(2)
+        else:
+            for s in range(len(cardAttacks[s])):
+                if choice_button[i+1][s].collidepoint(mpos) and b1 == 1:
+                    pickedCards[i+1] = s+1
+                    music_play(2)
 
     if pickedCards[1] != -1 and pickedCards[2] != -1 and tile:
         fightResult(player, players[tilelist[defender].Owner].Id, pickedCards[1], pickedCards[2], tile, dicelist)
@@ -806,6 +860,8 @@ def main():
     music_playing = True
     ng = False
     ingame = False
+    computerPlayers = [0,1,2,3]
+
     global tilelist
     global tiles
     global numberOfPlayers
@@ -819,6 +875,7 @@ def main():
     global music_playing
     global ng
     global ingame
+    global computerPlayers
 
     global screen
     menu()
@@ -858,7 +915,10 @@ def main():
             pygame.event.get()
             (b1,b2,b3) = pygame.mouse.get_pressed()
             mpos = pygame.mouse.get_pos()
-            if dice_button.collidepoint(mpos) and b1 == 1:
+            if playerN in computerPlayers:
+                print("computerTurn!")
+                turn(playerN)
+            elif dice_button.collidepoint(mpos) and b1 == 1:
                 turn(playerN)
 
             data1 = []
