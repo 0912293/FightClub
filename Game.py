@@ -1,14 +1,44 @@
 import sys
 import pygame
 from pygame.locals import *
+import pygame.mixer
+import sqlite3
 import os
 import random
 import pickle
 from time import *
 
-abspath = os.path.abspath(__file__)
+if getattr(sys, 'frozen', False):
+    abspath = os.path.abspath(sys.executable)
+else:
+    abspath = os.path.abspath(os.path.realpath(__file__))
+
+# abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
+database = 'database.db'
 os.chdir(dname)
+
+if os.path.isfile(database) == False:           #--------creates database and table
+    connection = sqlite3.connect(database)
+    cursor = connection.cursor()
+    sql_command = """
+    CREATE TABLE player(
+    Id INTEGER,
+    Position INTEGER,
+    X INTEGER,
+    Y INTEGER,
+    Health INTEGER,
+    Stamina INTEGER,
+    Card INTEGER,
+    Removed INTEGER,
+    Name VARCHAR(30),
+    R INTEGER,
+    G INTEGER,
+    B INTEGER);"""
+    cursor.execute(sql_command)
+else:
+    connection = sqlite3.connect(database)
+    cursor = connection.cursor()
 
 class Tile():
     def __init__(self, id, x, y, type, owner):
@@ -27,7 +57,7 @@ def createBoard():
     global numberOfBoardRefreshes
     for i in range(tiles):
         for j in range(tiles):
-            if numberOfBoardRefreshes == -1:
+            if numberOfBoardRefreshes == 0:
                 pygame.display.flip()
             tile = (screenX//tiles*j, screenY//tiles*i, screenX//tiles, screenY//tiles)
             if i == 0 or j == 0 or i == tiles-1 or j == tiles-1:
@@ -163,10 +193,10 @@ def menu():
     my_font = pygame.font.SysFont("Arial", 70)
     if ng:
         start_button = Rect(0, 150, screenX//2, 75)
-        startB_img = pygame.transform.scale(pygame.image.load('b_resumesavedgame.png'), (screenX//2, 75))
+        startB_img = pygame.transform.scale(pygame.image.load('b_continue.png'), (screenX//3, 75))
         screen.blit(startB_img,(0, 150))
 
-    if os.path.isfile("savefile"):
+    if os.path.isfile("database.db"):
         load_button = Rect(0, 450, screenX//2.5, 75)
         loadB_img = pygame.transform.scale(pygame.image.load('b_load.png'), (screenX//6, 75))
         screen.blit(loadB_img,(0, 450))
@@ -206,8 +236,26 @@ def menu():
         instructions()
     if ingame:
         if save_button.collidepoint(mpos) & b1==1:
-            data1.append(music_playing)
+            connection = sqlite3.connect(database)  #-- connection to database
+            cursor = connection.cursor()
+            cursor.execute('DROP TABLE IF EXISTS player')       #-------drops table, creates new
+            sql_command = """  
+            CREATE TABLE player(
+            Id INTEGER,
+            Position INTEGER,
+            X INTEGER,
+            Y INTEGER,
+            Health INTEGER,
+            Stamina INTEGER,
+            Card INTEGER,
+            Removed INTEGER,
+            Name VARCHAR(30),
+            R INTEGER,
+            G INTEGER,
+            B INTEGER);"""
+            cursor.execute(sql_command)
             for s in range(0,numberOfPlayers):
+                R, G, B = players[s].Color      #-------- adds data in the table
                 data1.append(players[s].Id)
                 data1.append(players[s].Position)
                 data1.append(players[s].X)
@@ -215,45 +263,52 @@ def menu():
                 data1.append(players[s].Health)
                 data1.append(players[s].Stamina)
                 data1.append(players[s].Card)
-                data1.append(players[s].Color)
                 data1.append(players[s].Removed)
                 data1.append(players[s].Name)
-            with open('savefile', 'wb') as f:
-                pickle.dump(data1, f)
+                data1.append(R)
+                data1.append(G)
+                data1.append(B)
+            it = [iter(data1)] * 12         #--------- creates list of tuples
+            data=list(zip(*it))
+            print(data)
+
+            cursor.executemany('INSERT INTO player VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',data)      #-------------inserts data
+            connection.commit()                   #------- commits it
+            cursor.execute("SELECT * FROM player")      #---prints all data in database
+            print("fetchall:")
+            result = cursor.fetchall()
+            for r in result:
+                print(r)
+            print(data1)
             print("Saved!")
-    if os.path.isfile("savefile"):
+
+    if os.path.isfile("database.db"):
         if load_button.collidepoint(mpos) & b1==1:
+            connection = sqlite3.connect(database)  #-- connection to database
+            cursor = connection.cursor()
             createList(0,0,0)
             playerCreate()
             ingame = True
-            with open('savefile', 'rb') as f:
-                data1 = pickle.load(f)
-            music_playing = data1[0]
             for s in range(0,numberOfPlayers):        #id, sprite, position, x, y, health, stamina, name, color, removed):
-                players[s].Id = data1[(s*10)+1]
-                players[s].Position = data1[(s*10+1)+1]
-                players[s].X = data1[(s*10+2)+1]
-                players[s].Y = data1[(s*10+3)+1]
-                players[s].Health = data1[(s*10+4)+1]
-                players[s].Stamina = data1[(s*10+5)+1]
-                players[s].Card = data1[(s*10+6)+1]
-                players[s].Color = data1[(s*10+7)+1]
-                players[s].Removed = data1[(s*10+8)+1]
-                players[s].Name = data1[(s*10+9)+1]
+                dat = cursor.execute('SELECT * FROM player WHERE Id={}'.format(s))                      #-------------- data load
+                id, position, x, y, health, stamina, card, removed, name, r, g, b = dat.fetchone()
+                players[s].Id = id
+                players[s].Position = position
+                players[s].X = x
+                players[s].Y = y
+                players[s].Health = health
+                players[s].Stamina = stamina
+                players[s].Card = card
+                players[s].Removed = removed
+                players[s].Name = name
+                players[s].Color = (r,g,b)
                 global players
                 global music_playing
-
-            if not music_playing:
-                pygame.mixer.music.stop()
-                music_playing = False
-            else:
-                try:
-                    pygame.mixer.music.play(-1, 0.0)
-                    music_playing = True
-                except:
-                    pass
             print("Loaded!")
+            ng = True
+            global ng
             return
+
     if settings_button.collidepoint(mpos) and b1==1:
         settings()
     if exit_button.collidepoint(mpos) and b1==1:
@@ -265,11 +320,14 @@ def menu():
 
 def music_play(n):
     music=['music3.wav','sound_effects/fight_bell.wav','sound_effects/button2.wav']
-    pygame.mixer.music.load(music[n])
-    if n == 0:
-        pygame.mixer.music.play(-1, 0.0)
-    else:
-        pygame.mixer.music.play(0, 0.0)
+    background_music = ["music1.wav", "music2.wav", "music3.wav"]
+    if music_playing:
+        if n == 0:
+            pygame.mixer.music.load(background_music[current_track])
+            pygame.mixer.music.play(-1, 0.0)
+        else:
+            pygame.mixer.music.load(music[n])
+            pygame.mixer.music.play(0, 0.0)
 
 def newGame():
     ng = False
@@ -277,7 +335,7 @@ def newGame():
     black = (0, 0, 0)
     red = (150, 0, 0)
     screen.fill(red)
-    logotexture = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX, screenY))
+    logotexture = pygame.transform.scale(pygame.image.load('boxing_ring.png'), (screenX, screenY))
     screen.blit(logotexture, (0,0))
     playerToPickCard = 0
     x = True
@@ -294,33 +352,32 @@ def newGame():
     global numberOfPlayers
 
     #buttons (x, y, size x, size y)
-    start_button = Rect(screenX - screenX//2.5, 50, screenX//2.5, 75)
-    p_button = Rect(screenX - screenX//2.5, 150, screenX//2.5, 75)
-    return_button = Rect(screenX - screenX//2.5, 550, screenX//2.5, 75)
+    start_button = Rect(0, 150, screenX//2.5, 75)
+    p_button = Rect(0, 250, screenX//2.5, 75)
+    return_button = Rect(0, screenY-(screenY//tiles), screenX//2.5, 75)
 
     #text Text, AA , color
     my_font = pygame.font.SysFont("Arial", 70)
-    startB_img = pygame.transform.scale(pygame.image.load('b_start.png'), (screenX//5, 75))
+    startB_img = pygame.transform.scale(pygame.image.load('b_next.png'), (screenX//5, 75))
     pB_img = pygame.transform.scale(pygame.image.load('b_players' + str(numberOfPlayers) + ".png"), (screenX//3, 75))
     returnB_img = pygame.transform.scale(pygame.image.load('b_return.png'), (screenX//4, 75))
 
     #draw text
-    screen.blit(startB_img,(screenX - screenX//2.5, 50))
-    screen.blit(pB_img,(screenX - screenX//2.5, 150))
-    screen.blit(returnB_img, (screenX - screenX//2.5, 550))
+    screen.blit(startB_img,(0, 150))
+    screen.blit(pB_img,(0, 250))
+    screen.blit(returnB_img, (0, screenY-(screenY//tiles)))
 
-    my_font = pygame.font.SysFont("Arial", 40)
-    cpuText = my_font.render("Computer Players:", True, (255, 255, 255))
+    cpuImg = pygame.transform.scale(pygame.image.load('b_computerplayers.png'), (screenX//2, 100))
+    screen.blit(cpuImg, (0, screenY//2))
 
-    screen.blit(cpuText, (20, screenY-(screenY//tiles)))
     for s in range(numberOfPlayers):
-        cpuButton = Rect((screenX//tiles+50)*s+400, screenY-(screenY//tiles), 165, 75)
-        cpuButtonText = my_font.render("Player {0}" .format(s+1), True, (255, 255, 255))
+        cpuButton = Rect((screenX//tiles+50)*s, screenY//2+75, 165, 75)
+        cpuButtonImg = pygame.transform.scale(pygame.image.load(os.path.join("b_player" + str(s+1) + ".png")), (screenX//8, 75))
         if s in computerPlayers:
-            screen.fill((200,0,0), cpuButton)
+            screen.fill((0,0,100), cpuButton)
         else:
             screen.fill((0,0,0), cpuButton)
-        screen.blit(cpuButtonText,((screenX//tiles+50)*s+400, screenY-(screenY//tiles)))
+        screen.blit(cpuButtonImg,((screenX//tiles+50)*s, screenY//2+75))
 
         (b1,b2,b3) = pygame.mouse.get_pressed()
         mpos = pygame.mouse.get_pos()
@@ -338,7 +395,7 @@ def newGame():
         playerCreate()
         chooseCardScreen()
     if p_button.collidepoint(mpos) and b1==1:
-        if numberOfPlayers <4:
+        if numberOfPlayers < 4:
             numberOfPlayers += 1
         else:
             numberOfPlayers = 2
@@ -377,7 +434,7 @@ def chooseCardScreen():
 
     #buttons (x, y, size x, size y)
     start_button = Rect(0,50,screenX//2.5, 75)
-    return_button = Rect(0, 550, screenX//2.5, 75)
+    return_button = Rect(0, screenY-(screenY//tiles), screenX//2.5, 75)
     if x:
         img1_button = pygame.draw.rect(screen, black, [400,250,300,200])
     if y:
@@ -387,15 +444,12 @@ def chooseCardScreen():
     if j:
         img4_button = pygame.draw.rect(screen, black, [800,500,300,200])
 
-    #text Text, AA , color
-    my_font = pygame.font.SysFont("Arial", 70)
     startB_img = pygame.transform.scale(pygame.image.load('b_start.png'), (screenX//5, 75))
     returnB_img = pygame.transform.scale(pygame.image.load('b_return.png'), (screenX//4, 75))
-    chooseC_text = my_font.render('Choose your character', True, (255,255,255))
+    chooseC_img = pygame.transform.scale(pygame.image.load('b_choosechar.png'), (screenX//2, 75))
 
     for s in range(4):
-        print(s, numberOfPlayers)
-        pB_text = my_font.render('PLAYER: {0}' .format(playerToPickCard+1), True, (255,255,255))
+        currentPlayer_img = pygame.transform.scale(pygame.image.load(os.path.join("b_player" + str(playerToPickCard+1) + ".png")), (screenX//3, 100))
         cardsImage = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(s+1) + ".png")),(300,200))
         if s == 0 and x:
             screen.blit(cardsImage, (400, 250))
@@ -437,10 +491,10 @@ def chooseCardScreen():
             return
 
     #draw text
-    screen.blit(chooseC_text, (450, 50))
-    screen.blit(pB_text, (450, 150))
+    screen.blit(chooseC_img, (450, 50))
+    screen.blit(currentPlayer_img, (450, 150))
     screen.blit(startB_img,(0, 50))
-    screen.blit(returnB_img, (0, 550))
+    screen.blit(returnB_img, (0, screenY-(screenY//tiles)))
 
     if start_button.collidepoint(mpos) and b1==1:
         ng = True
@@ -482,6 +536,7 @@ def instructions():
 def settings():
     black = (0, 0, 0)
     red = (150, 0, 0)
+    data2 = []
     screen.fill(red)
     logotexture = pygame.transform.scale(pygame.image.load('boxing_ring_logo.png'), (screenX, screenY))
     screen.blit(logotexture, (0,0))
@@ -500,6 +555,23 @@ def settings():
     #draw text
     screen.blit(muteB_img,(screenX-screenX//2.5, 50))
     screen.blit(returnB_img, (screenX-screenX//2.5, 550))
+
+    for s in range(3):
+        track_button = Rect(screenX-screenX//2.5, 75*s + 150, screenX//tiles*2, screenY//tiles)
+        track_img = pygame.transform.scale(pygame.image.load('b_unmute.png'), (screenX//tiles, screenY//tiles))
+        (b1,b2,b3) = pygame.mouse.get_pressed()
+        mpos = pygame.mouse.get_pos()
+        if track_button.collidepoint(mpos) and b1 == 1:
+            print(s)
+            current_track = s
+            global current_track
+            music_play(0)
+            data2 = [music_playing, current_track]
+            with open('savefile', 'wb') as f:
+                pickle.dump(data2, f)
+        if current_track == s:
+            screen.fill((255,255,255), track_button)
+        screen.blit(track_img, (screenX-screenX//2.5, 75*s + 150))
     pygame.display.flip()
 
     #button actions
@@ -507,14 +579,14 @@ def settings():
     mpos = pygame.mouse.get_pos()
     if mute_button.collidepoint(mpos) and b1==1:
         if music_playing:
-            pygame.mixer.music.stop()
             music_playing = False
         else:
-            try:
-                pygame.mixer.music.play(-1, 0.0)
-                music_playing = True
-            except:
-                pass
+            music_playing = True
+        print(music_playing)
+        music_play(0)
+        data2 = [music_playing, current_track]
+        with open('savefile', 'wb') as f:
+            pickle.dump(data2, f)
     if return_button.collidepoint(mpos) and b1==1:
         return
     if pygame.key.get_pressed()[27] == 1:
@@ -920,13 +992,6 @@ def main():
     global sfName
     global sfDamage
 
-    pygame.mixer.init(44100, -16,2,2048)
-
-    try:
-        music_play(0)
-    except:
-        pass
-
     tilelist = {"": ""}
     tiles = 11
     numberOfPlayers = 4
@@ -938,10 +1003,19 @@ def main():
     activePlayers = numberOfPlayers
     bCurrentImage = 1
     music_playing = True
+    current_track = 1
     ng = False
     ingame = False
     computerPlayers = []
     numberOfBoardRefreshes = 0
+
+    pygame.mixer.init(44100, -16,2,2048)
+    if os.path.isfile("savefile"):
+        with open('savefile', 'rb') as f:
+            data2 = pickle.load(f)
+            music_playing = data2[0]
+            current_track = data2[1]
+    music_play(0)
 
     global tilelist
     global tiles
@@ -954,6 +1028,7 @@ def main():
     global bCurrentImage
     global pickedSFCard
     global music_playing
+    global current_track
     global ng
     global ingame
     global computerPlayers
@@ -961,8 +1036,6 @@ def main():
 
     global screen
     menu()
-    # createList(0,0,0)
-    # playerCreate()
     ingame = True
 
     while True:
@@ -1029,3 +1102,16 @@ def main():
     pygame.quit()     #Closes the windows and stops the music
 
 main()
+
+#Fightclub 2016
+#1: Nobody talks about Fightclub.
+#2: Nobody talks about Fightclub.
+#All content is property of their respected owners.
+#Duplication or alteration of this document and it's included files is not allowed.
+#Team:
+#Halil Bilen
+#Kevin Chiu
+#Vincent Pruijn
+#Floris-Jan Willemsen
+
+#Have fun playing!
