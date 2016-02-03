@@ -1,13 +1,19 @@
 import sys
 import pygame
 from pygame.locals import *
+import pygame.mixer
 import sqlite3
 import os
 import random
 import pickle
 from time import *
 
-abspath = os.path.abspath(__file__)
+if getattr(sys, 'frozen', False):
+    abspath = os.path.abspath(sys.executable)
+else:
+    abspath = os.path.abspath(os.path.realpath(__file__))
+
+# abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 database = 'database.db'
 os.chdir(dname)
