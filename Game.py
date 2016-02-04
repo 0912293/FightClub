@@ -269,16 +269,11 @@ def menu():
                 data1.append(B)
             it = [iter(data1)] * 12         #--------- creates list of tuples
             data=list(zip(*it))
-            print(data)
 
             cursor.executemany('INSERT INTO player VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',data)      #-------------inserts data
             connection.commit()                   #------- commits it
             cursor.execute("SELECT * FROM player")      #---prints all data in database
-            print("fetchall:")
             result = cursor.fetchall()
-            for r in result:
-                print(r)
-            print(data1)
             print("Saved!")
 
     if os.path.isfile("database.db"):
@@ -371,13 +366,13 @@ def newGame():
 
     for s in range(numberOfPlayers):
         cpuButton = Rect((screenX//tiles+50)*s, screenY//2+75, screenX//8, 75)
-        cpuButtonImg = pygame.transform.scale(pygame.image.load(os.path.join("b_player" + str(s+1) + ".png")), (screenX//8, 75))
         if s in computerPlayers:
-            screen.fill((0,0,100), cpuButton)
+            screen.fill((50,50,50), cpuButton)
+            cpuButtonImg = pygame.transform.scale(pygame.image.load(os.path.join("b_cpu" + str(s+1) + ".png")), (screenX//8, 75))
         else:
             screen.fill((0,0,0), cpuButton)
+            cpuButtonImg = pygame.transform.scale(pygame.image.load(os.path.join("b_player" + str(s+1) + ".png")), (screenX//8, 75))
         screen.blit(cpuButtonImg,((screenX//tiles+50)*s, screenY//2+75))
-
         (b1,b2,b3) = pygame.mouse.get_pressed()
         mpos = pygame.mouse.get_pos()
         if cpuButton.collidepoint(mpos) and b1==1:
@@ -570,7 +565,7 @@ def settings():
             with open('savefile', 'wb') as f:
                 pickle.dump(data2, f)
         if current_track == s:
-            screen.fill((0,0,100), track_button)
+            screen.fill((50,50,50), track_button)
         screen.blit(track_img, (screenX-screenX//2.5, 75*s + 250))
     pygame.display.flip()
 
@@ -582,7 +577,6 @@ def settings():
             music_playing = False
         else:
             music_playing = True
-        print(music_playing)
         music_play(0)
         data2 = [music_playing, current_track]
         with open('savefile', 'wb') as f:
@@ -651,6 +645,7 @@ def checkFight(player):
         if players[player].Position == tilelist[s].Id and tilelist[s].Type == "superfight":
             diceRoll(player, -1, -1, -1, False)
             music_play(1)
+            print("Superfight")
             superFight(player, random.randint(1,17), dice1)
             music_play(0)
             return
@@ -660,15 +655,17 @@ def checkFight(player):
         elif players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner and not players[tilelist[s].Owner].Removed and not tilelist[s].Owner < 0:
             music_play(1)
             diceRoll(player, tilelist[s].Owner, -1, -1, True)
+            print("Cornerfight")
             fight(player, s, True, dicelist)
             music_play(0)
             return
         else:
-            for s in range(len(players)-1):
-                if (players[player].Position == players[s].Position and players[player].Id != players[s].Id):
+            for i in range(len(players)-1):
+                if (players[player].Position == players[i].Position and players[player].Id != players[i].Id) and not players[i].Removed:
                     music_play(1)
-                    diceRoll(player, s, -1, -1, False)
-                    fight(player, s, False, dicelist)
+                    diceRoll(player, i, -1, -1, False)
+                    print("Fight")
+                    fight(player, i, False, dicelist)
                     music_play(0)
                     return
 
@@ -788,7 +785,6 @@ def superFight(player, superfighter, dice):
     superFight(player, superfighter, dice)
 
 def fight(player, defender, tile, dicelist):
-    print(defender)
     screen.fill((0, 0, 0))
     card1 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(players[player].Card) + ".png")), (screenX//3, screenY//3))
     global pickedCards
@@ -797,11 +793,11 @@ def fight(player, defender, tile, dicelist):
     if tile:
         versus = "It's Player " + str(players[player].Id) + " VS " + str(tilelist[defender].Owner)
         right_side = players[tilelist[defender].Owner].Color
-        card2 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(tilelist[defender].Owner+1) + ".png")), (screenX//3, screenY//3))
+        card2 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(players[tilelist[defender].Owner].Card) + ".png")), (screenX//3, screenY//3))
     elif not tile:
         versus = "It's Player " + str(players[player].Id) + " VS " + str(players[defender].Id)
         right_side = players[defender].Color
-        card2 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(defender+1) + ".png")), (screenX//3, screenY//3))
+        card2 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(players[defender].Card) + ".png")), (screenX//3, screenY//3))
 
     left_side = players[player].Color
     left_rect = (0, 0, screenX//2, screenY)
@@ -1062,7 +1058,6 @@ def main():
             (b1,b2,b3) = pygame.mouse.get_pressed()
             mpos = pygame.mouse.get_pos()
             if playerN in computerPlayers:
-                print("computerTurn!")
                 turn(playerN)
             elif dice_button.collidepoint(mpos) and b1 == 1:
                 turn(playerN)
