@@ -13,7 +13,6 @@ if getattr(sys, 'frozen', False):
 else:
     abspath = os.path.abspath(os.path.realpath(__file__))
 
-# abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 database = 'database.db'
 os.chdir(dname)
@@ -371,7 +370,7 @@ def newGame():
     screen.blit(cpuImg, (0, screenY//2))
 
     for s in range(numberOfPlayers):
-        cpuButton = Rect((screenX//tiles+50)*s, screenY//2+75, 165, 75)
+        cpuButton = Rect((screenX//tiles+50)*s, screenY//2+75, screenX//8, 75)
         cpuButtonImg = pygame.transform.scale(pygame.image.load(os.path.join("b_player" + str(s+1) + ".png")), (screenX//8, 75))
         if s in computerPlayers:
             screen.fill((0,0,100), cpuButton)
@@ -543,7 +542,7 @@ def settings():
     global music_playing
 
     #buttons (x, y, size x, size y)
-    mute_button = Rect(screenX-screenX//2.5, 50,screenX//2.5, 75)
+    mute_button = Rect(screenX-screenX//2.5, 150,screenX//2.5, 75)
     return_button = Rect(screenX-screenX//2.5, 550, screenX//2.5, 75)
 
     if music_playing:
@@ -553,16 +552,17 @@ def settings():
     returnB_img = pygame.transform.scale(pygame.image.load('b_return.png'), (screenX//4, 75))
 
     #draw text
-    screen.blit(muteB_img,(screenX-screenX//2.5, 50))
+    background_track_img = pygame.transform.scale(pygame.image.load('b_backgroundmusic.png'), (screenX//3, 75))
+    screen.blit(background_track_img, ((screenX-screenX//2.5, 50)))
+    screen.blit(muteB_img,(screenX-screenX//2.5, 150))
     screen.blit(returnB_img, (screenX-screenX//2.5, 550))
 
     for s in range(3):
-        track_button = Rect(screenX-screenX//2.5, 75*s + 150, screenX//tiles*2, screenY//tiles)
-        track_img = pygame.transform.scale(pygame.image.load('b_unmute.png'), (screenX//tiles, screenY//tiles))
+        track_button = Rect(screenX-screenX//2.5, 75*s + 250, screenX//tiles*2, screenY//tiles)
+        track_img = pygame.transform.scale(pygame.image.load(os.path.join("b_track" + str(s+1) + ".png")), (screenX//tiles*2, screenY//tiles))
         (b1,b2,b3) = pygame.mouse.get_pressed()
         mpos = pygame.mouse.get_pos()
         if track_button.collidepoint(mpos) and b1 == 1:
-            print(s)
             current_track = s
             global current_track
             music_play(0)
@@ -570,8 +570,8 @@ def settings():
             with open('savefile', 'wb') as f:
                 pickle.dump(data2, f)
         if current_track == s:
-            screen.fill((255,255,255), track_button)
-        screen.blit(track_img, (screenX-screenX//2.5, 75*s + 150))
+            screen.fill((0,0,100), track_button)
+        screen.blit(track_img, (screenX-screenX//2.5, 75*s + 250))
     pygame.display.flip()
 
     #button actions
@@ -620,7 +620,8 @@ def playerMove(s, forward):
     if players[s].Position + forward > len(tilelist)-2:
         remainder = players[s].Position + forward - len(tilelist)-1
         players[s].Position = remainder
-    players[s].Position += 1
+    else:
+        players[s].Position += forward
     for i in range(len(tilelist)-1):
         if tilelist[i].Id == players[s].Position:
             players[s].X = tilelist[i].X*(screenX//tiles)+5
@@ -645,7 +646,7 @@ def turn(player):
 
 def checkFight(player):
     for s in range(4):
-            print("Player:", s, "with card", players[s].Card)
+        print("Player:", s, "with card", players[s].Card)
     for s in range(len(tilelist)-1):
         dice1 = random.randint(1,6)
         dicelist = [dice1, random.randint(1,6)]
@@ -683,7 +684,10 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
         left_rect = (0, 0, screenX//2, screenY)
         if tile:
             print(defender)
-            right_side = players[tilelist[defender].Owner].Color
+            try:
+                right_side = players[tilelist[defender].Owner].Color
+            except:
+                right_side = left_side
         else:
             right_side = players[defender].Color
         right_rect = (screenX//2, 0, screenX//2, screenY)
@@ -708,6 +712,9 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
                 return
     if dice2 == -1:
         if tile:
+            print(defender)
+            print(tilelist)
+            for s in range(len(tilelist)-1):
             defender = tilelist[defender].Owner
         if defender in computerPlayers:
             dice2 = random.randint(1,6)
