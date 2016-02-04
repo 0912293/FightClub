@@ -1,13 +1,19 @@
 import sys
 import pygame
 from pygame.locals import *
+import pygame.mixer
 import sqlite3
 import os
 import random
 import pickle
 from time import *
 
-abspath = os.path.abspath(__file__)
+if getattr(sys, 'frozen', False):
+    abspath = os.path.abspath(sys.executable)
+else:
+    abspath = os.path.abspath(os.path.realpath(__file__))
+
+# abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 database = 'database.db'
 os.chdir(dname)
@@ -314,11 +320,13 @@ def menu():
 
 def music_play(n):
     music=['music3.wav','sound_effects/fight_bell.wav','sound_effects/button2.wav']
-    pygame.mixer.music.load(music[n])
+    background_music = ["music1.wav", "music2.wav", "music3.wav"]
     if music_playing:
         if n == 0:
+            pygame.mixer.music.load(background_music[current_track])
             pygame.mixer.music.play(-1, 0.0)
         else:
+            pygame.mixer.music.load(music[n])
             pygame.mixer.music.play(0, 0.0)
 
 def newGame():
@@ -547,6 +555,23 @@ def settings():
     #draw text
     screen.blit(muteB_img,(screenX-screenX//2.5, 50))
     screen.blit(returnB_img, (screenX-screenX//2.5, 550))
+
+    for s in range(3):
+        track_button = Rect(screenX-screenX//2.5, 75*s + 150, screenX//tiles*2, screenY//tiles)
+        track_img = pygame.transform.scale(pygame.image.load('b_unmute.png'), (screenX//tiles, screenY//tiles))
+        (b1,b2,b3) = pygame.mouse.get_pressed()
+        mpos = pygame.mouse.get_pos()
+        if track_button.collidepoint(mpos) and b1 == 1:
+            print(s)
+            current_track = s
+            global current_track
+            music_play(0)
+            data2 = [music_playing, current_track]
+            with open('savefile', 'wb') as f:
+                pickle.dump(data2, f)
+        if current_track == s:
+            screen.fill((255,255,255), track_button)
+        screen.blit(track_img, (screenX-screenX//2.5, 75*s + 150))
     pygame.display.flip()
 
     #button actions
@@ -559,7 +584,7 @@ def settings():
             music_playing = True
         print(music_playing)
         music_play(0)
-        data2.append(music_playing)
+        data2 = [music_playing, current_track]
         with open('savefile', 'wb') as f:
             pickle.dump(data2, f)
     if return_button.collidepoint(mpos) and b1==1:
@@ -978,6 +1003,7 @@ def main():
     activePlayers = numberOfPlayers
     bCurrentImage = 1
     music_playing = True
+    current_track = 1
     ng = False
     ingame = False
     computerPlayers = []
@@ -988,6 +1014,7 @@ def main():
         with open('savefile', 'rb') as f:
             data2 = pickle.load(f)
             music_playing = data2[0]
+            current_track = data2[1]
     music_play(0)
 
     global tilelist
@@ -1001,6 +1028,7 @@ def main():
     global bCurrentImage
     global pickedSFCard
     global music_playing
+    global current_track
     global ng
     global ingame
     global computerPlayers
@@ -1074,3 +1102,16 @@ def main():
     pygame.quit()     #Closes the windows and stops the music
 
 main()
+
+#Fightclub 2016
+#1: Nobody talks about Fightclub.
+#2: Nobody talks about Fightclub.
+#All content is property of their respected owners.
+#Duplication or alteration of this document and it's included files is not allowed.
+#Team:
+#Halil Bilen
+#Kevin Chiu
+#Vincent Pruijn
+#Floris-Jan Willemsen
+
+#Have fun playing!
