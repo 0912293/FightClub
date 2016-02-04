@@ -151,7 +151,7 @@ def createList(s, i, j):
     elif i == maxtile and j == tiles//2:
         tilelist[s] = Tile(s, i, j, "superfight", -1)
         createList(s+1, i, j-1)
-    elif i == maxtile and j == maxtile-1: #bottomleft corner right
+    elif i == maxtile and j == 1: #bottomleft corner right
         tilelist[s] = Tile(s, i, j, corner3, 3)
         createList(s+1, i, j-1)
     elif i == maxtile and j > 0 and j < maxtile:
@@ -373,7 +373,7 @@ def newGame():
         cpuButton = Rect((screenX//tiles+50)*s, screenY//2+75, screenX//8, 75)
         cpuButtonImg = pygame.transform.scale(pygame.image.load(os.path.join("b_player" + str(s+1) + ".png")), (screenX//8, 75))
         if s in computerPlayers:
-            screen.fill((0,0,100), cpuButton)
+            screen.fill((50,150,50), cpuButton)
         else:
             screen.fill((0,0,0), cpuButton)
         screen.blit(cpuButtonImg,((screenX//tiles+50)*s, screenY//2+75))
@@ -645,8 +645,6 @@ def turn(player):
         playerN += 1
 
 def checkFight(player):
-    for s in range(4):
-        print("Player:", s, "with card", players[s].Card)
     for s in range(len(tilelist)-1):
         dice1 = random.randint(1,6)
         dicelist = [dice1, random.randint(1,6)]
@@ -659,9 +657,9 @@ def checkFight(player):
         elif players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player == tilelist[s].Owner:
             players[player].Stamina = 15
             break
-        elif players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner and not players[tilelist[s].Owner].Removed:
+        elif players[player].Position == tilelist[s].Id and tilelist[s].Type == "corner" and player != tilelist[s].Owner and not players[tilelist[s].Owner].Removed and not tilelist[s].Owner < 0:
             music_play(1)
-            diceRoll(player, s, -1, -1, True)
+            diceRoll(player, tilelist[s].Owner, -1, -1, True)
             fight(player, s, True, dicelist)
             music_play(0)
             return
@@ -682,14 +680,7 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
     else:
         left_side = players[attacker].Color
         left_rect = (0, 0, screenX//2, screenY)
-        if tile:
-            print(defender)
-            try:
-                right_side = players[tilelist[defender].Owner].Color
-            except:
-                right_side = left_side
-        else:
-            right_side = players[defender].Color
+        right_side = players[defender].Color
         right_rect = (screenX//2, 0, screenX//2, screenY)
         screen.fill(left_side, left_rect)
         screen.fill(right_side, right_rect)
@@ -711,11 +702,6 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
             if dice2 != -1 or defender <= 0:
                 return
     if dice2 == -1:
-        if tile:
-            print(defender)
-            print(tilelist)
-            for s in range(len(tilelist)-1):
-            defender = tilelist[defender].Owner
         if defender in computerPlayers:
             dice2 = random.randint(1,6)
             if dice1 != -1:
@@ -742,8 +728,6 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
 def superFight(player, superfighter, dice):
     screen.fill((0,0,0))
     global players
-    for s in range(4):
-        print("Player:", s, "with card", players[s].Card)
     card1 = pygame.transform.scale(pygame.image.load(os.path.join("player_cards", "p" + str(players[player].Card) + ".png")), (screenX//3, screenY//3))
     card2 = pygame.transform.scale(pygame.image.load(os.path.join("img", "sf" + str(superfighter) + ".png")), (screenX//3, screenY//3))
     pickedSFCard = -1
