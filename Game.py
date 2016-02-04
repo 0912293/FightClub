@@ -714,7 +714,6 @@ def diceRoll(attacker, defender, dice1, dice2, tile):
         if tile:
             print(defender)
             print(tilelist)
-            for s in range(len(tilelist)-1):
             defender = tilelist[defender].Owner
         if defender in computerPlayers:
             dice2 = random.randint(1,6)
